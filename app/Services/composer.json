@@ -1,0 +1,14 @@
+{
+  "name": "vendor_name/Services",
+  "description": "description",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "hasan",
+      "email": "email@example.com"
+    }
+  ],
+  "require": {
+  }
+}
