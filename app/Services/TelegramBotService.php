@@ -13,6 +13,15 @@ class TelegramBotService
     public Api $param;
     private FilesystemAdapter $disk;
     private Update $update;
+    private array $channels = [
+        '-1001816892506',
+        '1816892506',
+        '-1001606203794',
+        '1606203794',
+        /** Это id https://t.me/ilmalkalam/300 */
+        '-1001694365544',
+        '1694365544'
+    ];
 
     /**
      * TelegramBotService constructor.
@@ -35,7 +44,7 @@ class TelegramBotService
             $this->runCallbackQuery();
         }
 
-        if (data_get($this->update, 'message.chat.id') == config('telegram.chats.channel_test')) {
+        if (in_array(data_get($this->update, 'message.chat.id', ''), $this->channels)) {
             $this->runChannelRule();
         }
     }
@@ -92,17 +101,17 @@ class TelegramBotService
         $this->disk->put('text.txt', $this->disk->get('text.txt')."\n".$updates);
     }
 
-    private function saveRuleMessage(int $userId, Message $sendingMessage)
+    private function saveRuleMessage(int $userId, $chatId, Message $sendingMessage)
     {
         $messages = $this->getRuleMessages();
-        $messages[$userId] = $sendingMessage->toArray();
+        $messages[$chatId] = [$userId => $sendingMessage->toArray()];
 
         $this->disk->put('ruleMessage.json', json_encode($messages));
     }
 
-    private function issetRuleMessage(int $userId): bool
+    private function issetRuleMessage(int $userId, $chatId): bool
     {
-        return \Arr::exists($this->getRuleMessages(), $userId);
+        return \Arr::exists(data_get($this->getRuleMessages(), "$chatId", []), $userId);
     }
 
     private function getRuleMessages(): array
@@ -136,44 +145,51 @@ class TelegramBotService
     {
         $messages = $this->getRuleMessages();
         $user_id = $this->getUpdateUserId($this->update);
-        if (\Arr::exists($messages, $user_id)) {
-            $this->removeMessage(\Arr::get($messages, $user_id . '.message_id'));
-            unset($messages[$user_id]);
+        $chatId = $this->update->getCallbackQuery()->getMessage()->getChat()->getId();
+        if (data_get($messages, "$chatId.$user_id")) {
+            $this->removeMessage(data_get($messages, "$chatId.$user_id.message_id"), $chatId);
+            $chatMessages = data_get($messages, "$chatId");
+            unset($chatMessages[$user_id]);
+            $messages[$chatId] = $chatMessages;
             $this->disk->put('ruleMessage.json', json_encode($messages));
         }
     }
 
-    private function removeMessage(int $message_id)
+    private function removeMessage(int $messageId, $chatId)
     {
         (new MyApi(config('telegram.bots.mybot.token')))->deleteMessage([
-            'chat_id' => config('telegram.chats.channel_test'),
-            'message_id' => $message_id
+            'chat_id' => $chatId,
+            'message_id' => $messageId
         ]);
     }
 
     private function runChannelRule()
     {
+        $chatId = $this->update->getMessage()->getChat()->getId();
+        $messageId = $this->update->getMessage()->getMessageId();
         if ($this->updateIssetLeftChatParticipant()) {
-            $this->removeMessage($this->update->getMessage()->getMessageId());
+            $this->removeMessage($messageId, $chatId);
             $messages = $this->getRuleMessages();
             $user_id = $this->getUpdateUserId($this->update);
-            if (\Arr::exists($messages, $user_id)) {
-                $this->removeMessage(\Arr::get($messages, $user_id . '.message_id'));
-                unset($messages[$user_id]);
+            if (data_get($messages, "$chatId.$user_id")) {
+                $this->removeMessage(\Arr::get($messages, "$chatId.$user_id.message_id"), \Arr::get($messages, $user_id . '.chat.id'));
+                $chatMessages = data_get($messages, "$chatId");
+                unset($chatMessages[$user_id]);
+                $messages[$chatId] = $chatMessages;
                 $this->disk->put('ruleMessage.json', json_encode($messages));
             }
         }
 
-        if ($this->issetRuleMessage($this->getUpdateUserId($this->update))) {
-            $this->removeMessage($this->update->getMessage()->getMessageId());
+        if ($this->issetRuleMessage($this->getUpdateUserId($this->update), $chatId)) {
+            $this->removeMessage($messageId, $this->update->getMessage()->getChat()->getId());
         } else {
             if (! $this->updateIssetNewChatParticipant()) {
                 return ;
             }
 
-            $this->removeMessage($this->update->getMessage()->getMessageId());
+            $this->removeMessage($messageId, $chatId);
             $sendingMessage = $this->sendRuleMessageToChannel($this->update);
-            $this->saveRuleMessage($this->getUpdateUserId($this->update), $sendingMessage);
+            $this->saveRuleMessage($this->getUpdateUserId($this->update), $chatId, $sendingMessage);
         }
     }
 
