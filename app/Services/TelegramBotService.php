@@ -183,7 +183,10 @@ class TelegramBotService
         if ($this->issetRuleMessage($this->getUpdateUserId($this->update), $chatId)) {
             $this->removeMessage($messageId, $this->update->getMessage()->getChat()->getId());
         } else {
-            if (! $this->updateIssetNewChatParticipant()) {
+            if (
+                ! $this->updateIssetNewChatParticipant() ||
+                $this->param->getMe()->getId() == $this->getUpdateUserId($this->update)
+            ) {
                 return ;
             }
 
