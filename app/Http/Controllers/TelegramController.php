@@ -15,6 +15,7 @@ class TelegramController extends Controller
         try {
             $service->run();
         } catch (Throwable  $e) {
+            $service->sendMessage($e->getMessage());
             $service->saveLog($e);
         }
 
