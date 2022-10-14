@@ -158,7 +158,7 @@ class TelegramBotService
     private function removeMessage(int $messageId, $chatId)
     {
         (new MyApi(config('telegram.bots.mybot.token')))->deleteMessage([
-            'chat_id' => $chatId,
+            'chat_id' => (string) $chatId,
             'message_id' => $messageId
         ]);
     }
@@ -181,7 +181,7 @@ class TelegramBotService
         }
 
         if ($this->issetRuleMessage($this->getUpdateUserId($this->update), $chatId)) {
-            $this->removeMessage($messageId, $this->update->getMessage()->getChat()->getId());
+            $this->removeMessage($messageId, $chatId);
         } else {
             if (
                 ! $this->updateIssetNewChatParticipant() ||
