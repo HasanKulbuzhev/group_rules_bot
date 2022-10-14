@@ -38,8 +38,6 @@ class TelegramBotService
         if (data_get($this->update, 'message.chat.id') == config('telegram.chats.channel_test')) {
             $this->runChannelRule();
         }
-
-        $this->saveLog(json_encode($this->update->toArray()));
     }
 
     public function sendRuleMessageToChannel(Update $update): Message
@@ -243,7 +241,6 @@ class TelegramBotService
             $this->disk->put('admin-session.json', json_encode([]));
 
             $this->sendMessage('Ваши правила успешно сохранены!');
-            $this->saveLog($message);
         }
     }
 }
