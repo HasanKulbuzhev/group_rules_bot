@@ -182,7 +182,7 @@ class TelegramBotService
             $messages = $this->getRuleMessages();
             $user_id = $this->getUpdateUserId($this->update);
             if (data_get($messages, "$chatId.$user_id")) {
-                $this->removeMessage(\Arr::get($messages, "$chatId.$user_id.message_id"), \Arr::get($messages, $user_id . '.chat.id'));
+                $this->removeMessage(\Arr::get($messages, "$chatId.$user_id.message_id"), $chatId);
                 $chatMessages = data_get($messages, "$chatId");
                 unset($chatMessages[$user_id]);
                 $messages[$chatId] = $chatMessages;
