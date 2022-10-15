@@ -155,12 +155,20 @@ class TelegramBotService
         }
     }
 
-    private function removeMessage(int $messageId, $chatId)
+    private function removeMessage(int $messageId, $chatId): bool
     {
-        (new MyApi(config('telegram.bots.mybot.token')))->deleteMessage([
-            'chat_id' => (string) $chatId,
-            'message_id' => $messageId
-        ]);
+        try {
+            (new MyApi(config('telegram.bots.mybot.token')))->deleteMessage([
+                'chat_id' => (string) $chatId,
+                'message_id' => $messageId
+            ]);
+
+            return true;
+        } catch(\Exception $e) {
+            if ($e->getMessage() == "Bad Request: message to delete not found") {
+                return true;
+            }
+        }
     }
 
     private function runChannelRule()
