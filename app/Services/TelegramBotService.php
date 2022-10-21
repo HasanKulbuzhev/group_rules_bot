@@ -18,7 +18,7 @@ class TelegramBotService
         '1816892506',
         '-1001606203794',
         '1606203794',
-        /** Это id https://t.me/ilmalkalam/300 */
+        /** Это id https://t.me/ilmalkalam */
         '-1001694365544',
         '1694365544'
     ];
@@ -235,6 +235,11 @@ class TelegramBotService
 
     }
 
+    private function test()
+    {
+        $this->update->getMessage()->getText();
+    }
+
     private function runAdminChat()
     {
         if (data_get($this->update->toArray(), 'message.entities.0.type') === 'bot_command') {
@@ -242,7 +247,7 @@ class TelegramBotService
                 data_get($this->update->toArray(), 'message.text') == '/start' ||
                 data_get($this->update->toArray(), 'message.text') == '/help'
             ) {
-                $this->sendMessage("السلام عليكم ورحمة الله وبركاته \n 
+                $this->sendMessage("السلام عليكم ورحمة الله وبركاته \n
                 введите /set_rules чтобы ввести правила для группы");
             }
 

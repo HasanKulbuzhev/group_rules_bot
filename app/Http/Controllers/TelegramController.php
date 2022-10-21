@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Api\MyApi;
 use App\Services\TelegramBotService;
 use Telegram\Bot\Api;
 use Throwable;
 
 class TelegramController extends Controller
 {
-    public function message(): string
+    public function message(string $token): string
     {
-        $service = new TelegramBotService(new Api(config('telegram.bots.mybot.token')));
+        $service = new TelegramBotService(new MyApi($token));
 
         try {
             $service->run();
