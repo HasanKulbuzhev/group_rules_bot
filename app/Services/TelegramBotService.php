@@ -104,7 +104,11 @@ class TelegramBotService
     private function saveRuleMessage(int $userId, $chatId, Message $sendingMessage)
     {
         $messages = $this->getRuleMessages();
-        $messages[$chatId] = [$userId => $sendingMessage->toArray()];
+        if (is_null(data_get($messages, "$chatId"))) {
+            $messages[$chatId] = [$userId => $sendingMessage->toArray()];
+        } else {
+            $messages[$chatId][$userId] = $sendingMessage->toArray();
+        }
 
         $this->disk->put('ruleMessage.json', json_encode($messages));
     }
@@ -242,7 +246,7 @@ class TelegramBotService
                 data_get($this->update->toArray(), 'message.text') == '/start' ||
                 data_get($this->update->toArray(), 'message.text') == '/help'
             ) {
-                $this->sendMessage("السلام عليكم ورحمة الله وبركاته \n 
+                $this->sendMessage("السلام عليكم ورحمة الله وبركاته \n
                 введите /set_rules чтобы ввести правила для группы");
             }
 
