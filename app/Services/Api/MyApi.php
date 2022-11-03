@@ -7,7 +7,7 @@ use Telegram\Bot\Objects\Message;
 
 class MyApi extends Api
 {
-    public function deleteMessage(array $params)
+    public function deleteMessage(array $params): Message
     {
         $response = $this->post('deleteMessage', $params);
 
