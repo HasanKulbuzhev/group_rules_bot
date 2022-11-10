@@ -42,36 +42,109 @@ class TelegramUpdateService
 
     public function getMessageType(): string
     {
-        if (data_get($this->update->toArray(), 'message.text', false)) {
-            return MessageTypeEnum::TEXT;
+        if ((bool)$this->getMessageValueTypes()) {
+            return MessageTypeEnum::VALUE_TYPE;
         }
 
-        if (data_get($this->update->toArray(), 'message.sticker', false)) {
-            return MessageTypeEnum::STICKER;
+        if ((bool)$this->getMessageEventTypes()) {
+            return MessageTypeEnum::EVENT_TYPE;
         }
 
-        if (data_get($this->update->toArray(), 'message.photo', false)) {
-            return MessageTypeEnum::PHOTO;
+        if ((bool)$this->getMessageGroupRuleTypes()) {
+            return MessageTypeEnum::GROUP_RULE_TYPE;
         }
 
-        if (data_get($this->update->toArray(), 'message.video', false)) {
-            return MessageTypeEnum::VIDEO;
+        if ((bool)$this->getMessageOwnerTypes()) {
+            return MessageTypeEnum::OWNER_TYPE;
         }
 
-        if (data_get($this->update->toArray(), 'callback_query', false)) {
-            return MessageTypeEnum::CALLBACK_QUERY;
+        return MessageTypeEnum::OTHER;
+    }
+
+    public function getMessageInnerTypes($messageType = 'all'): array
+    {
+        $all = array_merge(
+            $this->getMessageValueTypes(),
+            $this->getMessageOwnerTypes(),
+            $this->getMessageGroupRuleTypes(),
+            $this->getMessageEventTypes(),
+        );
+
+        $types = [
+            'all' => $all,
+            MessageTypeEnum::VALUE_TYPE => $this->getMessageValueTypes(),
+            MessageTypeEnum::OWNER_TYPE => $this->getMessageOwnerTypes(),
+            MessageTypeEnum::GROUP_RULE_TYPE => $this->getMessageGroupRuleTypes(),
+            MessageTypeEnum::EVENT_TYPE => $this->getMessageEventTypes(),
+            MessageTypeEnum::OTHER => [],
+        ];
+
+        return $types[$messageType];
+    }
+
+    private function getMessageOwnerTypes(): array
+    {
+        $types = [];
+
+        foreach (MessageTypeEnum::getOwnerTypes() as $type) {
+            if (data_get($this->update->toArray(), 'message.' . $type, false)) {
+                $types[] = $type;
+            }
         }
 
-        if (data_get($this->update->toArray(), 'message.group_chat_created', false)) {
-            return MessageTypeEnum::GROUP_CHAT_CREATED;
+        return $types;
+    }
+
+    private function getMessageValueTypes(): array
+    {
+        $types = [];
+
+        foreach (MessageTypeEnum::getValueTypes() as $type) {
+            if (data_get($this->update->toArray(), 'message.' . $type, false)) {
+                $types[] = $type;
+            }
         }
 
-        if (data_get($this->update->toArray(), 'message.new_chat_participant', false)) {
-            return MessageTypeEnum::NEW_CHAT_PARTICIPANT;
+        return $types;
+    }
+
+    private function getMessageEventTypes(): array
+    {
+        $types = [];
+
+        foreach (MessageTypeEnum::getEventTypes() as $type) {
+            if ($type === MessageTypeEnum::CALLBACK_QUERY) {
+                if (data_get($this->update->toArray(), 'callback_query', false)) {
+                    $types[] = $type;
+                    continue;
+                }
+            }
+
+            if ($type === MessageTypeEnum::COMMAND) {
+                if (data_get($this->update->toArray(), 'message.entities.0.type', false) === 'bot_command') {
+                    $types[] = $type;
+                    continue;
+                }
+            }
+
+            if (data_get($this->update->toArray(), 'message.' . $type, false)) {
+                $types[] = $type;
+            }
         }
 
-        if (data_get($this->update->toArray(), 'message.left_chat_participant', false)) {
-            return MessageTypeEnum::LEFT_CHAT_PARTICIPANT;
+        return $types;
+    }
+
+    private function getMessageGroupRuleTypes(): array
+    {
+        $types = [];
+
+        foreach (MessageTypeEnum::getGroupRuleTypes() as $type) {
+            if (data_get($this->update->toArray(), 'message.' . $type, false)) {
+                $types[] = $type;
+            }
         }
+
+        return $types;
     }
 }

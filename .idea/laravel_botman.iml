@@ -120,7 +120,6 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/mpociot/pipeline" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/evenement/evenement" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/tightenco/collect" />
-      <excludeFolder url="file://$MODULE_DIR$/vendor/telegram-bot-sdk/telegram-bot-sdk" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/predis/predis" />
     </content>
     <orderEntry type="inheritedJdk" />

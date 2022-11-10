@@ -2,8 +2,9 @@
 
 namespace App\Services\TelegramBot;
 
+use App\Enums\Telegram\TelegramBotTypeEnum;
 use App\Interfaces\Base\BaseServiceInterface;
-use App\TelegramBot;
+use App\Models\TelegramBot;
 
 class CreateTelegramBotService implements BaseServiceInterface
 {
@@ -13,7 +14,10 @@ class CreateTelegramBotService implements BaseServiceInterface
     public function __construct(TelegramBot $bot, array $data)
     {
         $this->bot = $bot;
-        $this->data = $data;
+        $botValue = $bot->telegram->getMe()->toArray();
+        $this->data = array_merge($botValue, $data,  [
+            'telegram_id' => $botValue['id'],
+        ]);
     }
 
     public function run(): bool

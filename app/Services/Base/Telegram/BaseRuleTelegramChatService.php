@@ -2,21 +2,21 @@
 
 namespace App\Services\Base\Telegram;
 
-use App\Services\Api\MyApi;
+use App\Models\TelegramBot;
 use App\Services\Base\BaseRuleService;
 use Telegram\Bot\Objects\Update;
 
 abstract class BaseRuleTelegramChatService extends BaseRuleService
 {
-    protected MyApi $telegram;
+    protected TelegramBot $bot;
     protected Update $update;
 
-    public function __construct(MyApi $telegram, Update $update = null)
+    public function __construct(TelegramBot $bot, Update $update = null)
     {
-        $this->telegram = $telegram;
-        $updates = $this->telegram->getUpdates();
-        $this->telegram->get
-        dd($updates);
+        $this->bot = $bot;
+        $updates = $this->bot->telegram->getUpdates(['allowed_updates' => []]);
+        $this->bot->telegram->setAccessToken('asdfadsf');
+
         $this->update = end($updates);
 //        $this->update = is_null($update)? $this->telegram->getWebhookUpdates() : $update;
     }

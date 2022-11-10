@@ -2,35 +2,55 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\Api\MyApi;
-use App\Services\Telegram\TelegramService;
+use App\Enums\Telegram\TelegramBotTypeEnum;
+use App\Services\Telegram\RuleTelegramBotService;
 use App\Services\TelegramBot\CreateTelegramBotService;
-use App\Services\TelegramBotService;
-use App\TelegramBot;
-use App\TelegramUser;
-use Cache;
-use Telegram\Bot\Api;
+use App\Models\TelegramBot;
 use Throwable;
 
 class TelegramController extends Controller
 {
-    public function message(string $token): string
+    public function groupRuleBot(string $token): string
     {
-//        $service = new TelegramBotService(new MyApi($token));
-        $bot = new TelegramBot();
-        (new CreateTelegramBotService($bot, []))->run();
-        (new CreateTelegramUserService(new TelegramUser(), $bot->telegram->get))->run();
-        (new TelegramService(new MyApi($token)))->run();
-        dd(2);
+        $bot = TelegramBot::query()
+            ->where('token', $token)
+            ->where('type', TelegramBotTypeEnum::GROUP_RULE)
+            ->first();
+
+        if (is_null($bot)) {
+            return 'not ok';
+        }
+
 
         try {
-            $service->run();
+            (new RuleTelegramBotService($bot))->run();
         } catch (Throwable  $e) {
-            $service->sendMessage($e->getMessage());
-            $service->saveLog($e);
+            $bot->telegram->sendMessage([
+                'chat_id' => config('telegram.bots.my_account.id'),
+                'text' => (string) $e->getMessage()
+            ]);
+            throw $e;
         }
 
 
         return 'ok';
+    }
+
+    public function baseBot()
+    {
+        $bot = TelegramBot::query()
+            ->where('token', config('telegram.bots.mybot.token'))
+            ->where('type', TelegramBotTypeEnum::BASE)->first();
+
+        if (is_null($bot)) {
+            $bot = new TelegramBot();
+
+            (new CreateTelegramBotService($bot, [
+                'token' => config('telegram.bots.mybot.token'),
+                'type' =>  TelegramBotTypeEnum::BASE
+            ]));
+        }
+
+        (new RuleTelegramBotService($bot))->run();
     }
 }

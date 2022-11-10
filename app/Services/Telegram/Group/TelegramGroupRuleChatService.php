@@ -10,30 +10,49 @@ use App\Services\Telegram\Update\TelegramUpdateService;
 use Cache;
 use Exception;
 
-class RuleTelegramGroupChatService extends BaseRuleTelegramChatService implements BaseServiceInterface
+class TelegramGroupRuleChatService extends BaseRuleTelegramChatService implements BaseServiceInterface
 {
     protected array $rules = [
-        MessageTypeEnum::TEXT => 'ruleMessageText',
-        MessageTypeEnum::CALLBACK_QUERY => 'callbackQuery',
-        MessageTypeEnum::NEW_CHAT_PARTICIPANT => 'newChatMember',
+        MessageTypeEnum::VALUE_TYPE => 'ruleMessageText',
+        MessageTypeEnum::EVENT_TYPE => [
+            MessageTypeEnum::CALLBACK_QUERY => 'callbackQuery',
+        ],
+        MessageTypeEnum::GROUP_RULE_TYPE => [
+            MessageTypeEnum::NEW_CHAT_MEMBERS => 'newChatMember',
+        ],
+        MessageTypeEnum::OTHER => 'default',
     ];
 
     public function run(): bool
     {
-        $messageType = (new TelegramUpdateService($this->update))->getMessageType();
-        $method = $this->rules[$messageType];
+        $updateService = (new TelegramUpdateService($this->update));
+        $messageType = $updateService->getMessageType();
+        $method = \Arr::get($this->rules, $messageType, MessageTypeEnum::OTHER);
+        if (is_array($method)) {
+            foreach ($method as $type) {
+                if (in_array($type, $updateService->getMessageInnerTypes($messageType))) {
+                    $method = $type;
+                    break;
+                }
+            }
+        }
         return $this->$method();
+    }
+
+    private function defalut(): bool
+    {
+        return true;
     }
 
     private function ruleMessageText(): bool
     {
-        $chatId = $this->update->getMessage()->getChat()->getId();
-        $messageId = $this->update->getMessage()->getMessageId();
-        $userId = $this->update->getMessage()->getFrom()->getId();
+        $chatId = $this->update->getChat()->id;
+        $messageId = $this->update->message->messageId;
+        $userId = $this->update->message->from->id;
 
         if (Cache::has($this->getWarningMessagePath($chatId, $userId))) {
             try {
-                $this->telegram->deleteMessage([
+                $this->bot->telegram->deleteMessage([
                     'chat_id' => $chatId,
                     'message_id' => $messageId
                 ]);
@@ -49,14 +68,14 @@ class RuleTelegramGroupChatService extends BaseRuleTelegramChatService implement
 
     private function callbackQuery(): bool
     {
-        $chatId = $this->update->getCallbackQuery()->getMessage()->getChat()->getId();
-        $userId = $this->update->getCallbackQuery()->getFrom()->getId();
+        $chatId = $this->update->callbackQuery->message->chat->id;
+        $userId = $this->update->callbackQuery->from->id;
 
         if (Cache::has($this->getWarningMessagePath($chatId, $userId))) {
             $warningMessageId = Cache::get(CacheTypeEnum::GROUP_RULES_TYPE . ".$chatId.$userId.message_id");
             try {
                 Cache::delete($this->getWarningMessagePath($chatId, $userId));
-                $this->telegram->deleteMessage([
+                $this->bot->telegram->deleteMessage([
                     'chat_id' => $chatId,
                     'message_id' => $warningMessageId,
                 ]);
@@ -73,9 +92,9 @@ class RuleTelegramGroupChatService extends BaseRuleTelegramChatService implement
 
     private function newChatMember(): bool
     {
-        $chatId = $this->update->getMessage()->getChat()->getId();
-        $userId = $this->update->getMessage()->getNewChatParticipant()->getId();
-        $messageId = $this->update->getMessage()->getMessageId();
+        $chatId = $this->update->getChat()->id;
+        $messageId = $this->update->message->messageId;
+        $newUsers = $this->update->message->newChatMembers;
         $inline_keyboard = json_encode([
             'inline_keyboard' => [
                 [
@@ -89,21 +108,25 @@ class RuleTelegramGroupChatService extends BaseRuleTelegramChatService implement
 
 
         try {
-            $this->telegram->deleteMessage([
-                'chat_id' => $chatId,
-                'message_id' => $messageId,
-            ]);
+            foreach ($newUsers as $user) {
+                $this->bot->telegram->deleteMessage([
+                    'chat_id' => $chatId,
+                    'message_id' => $messageId,
+                ]);
 
-            $warningMessageId = $this->telegram->sendMessage([
-                'chat_id' => $chatId,
-                'text' => '',
-                'reply_markup' => $inline_keyboard,
-                'parse_mode' => 'Markdown'
-            ]);
-            Cache::put($this->getWarningMessagePath($chatId, $userId), $warningMessageId);
+                $warningMessageId = $this->bot->telegram->sendMessage([
+                    'chat_id' => $chatId,
+                    'text' => '',
+                    'reply_markup' => $inline_keyboard,
+                    'parse_mode' => 'Markdown'
+                ]);
+
+                Cache::put($this->getWarningMessagePath($chatId, $user->id), $warningMessageId);
+            }
 
             return true;
         } catch (Exception $exception) {
+            throw $exception;
         }
 
         return false;

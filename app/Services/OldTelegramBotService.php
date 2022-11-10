@@ -2,13 +2,13 @@
 
 namespace App\Services;
 
-use App\Services\Api\MyApi;
+use App\Services\Api\TelegramBotApi;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Telegram\Bot\Api;
 use Telegram\Bot\Objects\Message;
 use Telegram\Bot\Objects\Update;
 
-class TelegramBotService
+class OldTelegramBotService
 {
     public Api $param;
     private FilesystemAdapter $disk;
@@ -158,7 +158,7 @@ class TelegramBotService
     private function removeMessage(int $messageId, $chatId): bool
     {
         try {
-            (new MyApi(config('telegram.bots.mybot.token')))->deleteMessage([
+            (new TelegramBotApi(config('telegram.bots.mybot.token')))->deleteMessage([
                 'chat_id' => $chatId,
                 'message_id' => $messageId
             ]);
