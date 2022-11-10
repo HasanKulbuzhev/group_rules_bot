@@ -43,12 +43,12 @@ class TelegramController extends Controller
             ->where('type', TelegramBotTypeEnum::BASE)->first();
 
         if (is_null($bot)) {
-            $bot = new TelegramBot();
-
-            (new CreateTelegramBotService($bot, [
+            $bot = new TelegramBot([
                 'token' => config('telegram.bots.mybot.token'),
                 'type' =>  TelegramBotTypeEnum::BASE
-            ]));
+            ]);
+
+            (new CreateTelegramBotService($bot, []));
         }
 
         (new RuleTelegramBotService($bot))->run();
