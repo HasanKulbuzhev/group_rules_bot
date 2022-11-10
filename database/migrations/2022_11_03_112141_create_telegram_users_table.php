@@ -30,12 +30,8 @@ class CreateTelegramUsersTable extends Migration
             $table->timestamps();
         });
 
-        Schema::create('telegram_bot_telegram_user_assigment', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('telegram_bot_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('telegram_user_id')->constrained()->cascadeOnDelete();
-            $table->smallInteger('status')->default(0);
-            $table->timestamps();
+        Schema::table('telegram_bots', function (Blueprint $table) {
+            $table->foreignId('telegram_user_id')->nullable()->constrained()->cascadeOnDelete();
         });
     }
 
@@ -46,7 +42,10 @@ class CreateTelegramUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('telegram_bot_telegram_user_assigment');
+        Schema::table('telegram_bots', function (Blueprint $table) {
+            $table->dropForeign(['telegram_user_id']);
+            $table->dropColumn('telegram_user_id');
+        });
         Schema::dropIfExists('telegram_chat_telegram_user_assigment');
         Schema::dropIfExists('telegram_users');
     }

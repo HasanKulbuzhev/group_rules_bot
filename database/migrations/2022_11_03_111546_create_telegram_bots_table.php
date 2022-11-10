@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Telegram\TelegramBotTypeEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,6 +19,8 @@ class CreateTelegramBotsTable extends Migration
             $table->bigInteger('telegram_id');
             $table->string('username');
             $table->string('first_name');
+            $table->string('token');
+            $table->smallInteger('type')->default(TelegramBotTypeEnum::GROUP_RULE);
             $table->boolean('can_join_groups')->default(true);
             $table->boolean('can_read_all_group_messages')->default(false);
             $table->boolean('supports_inline_queries')->default(false);
