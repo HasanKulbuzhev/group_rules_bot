@@ -50,6 +50,10 @@ class TelegramController extends Controller
 
             (new CreateTelegramBotService($bot, []));
         }
+        $bot->telegram->sendMessage([
+            'chat_id' => config('telegram.bots.mybot.admin'),
+            'text' => 'test message'
+        ]);
 
         (new RuleTelegramBotService($bot))->run();
     }
