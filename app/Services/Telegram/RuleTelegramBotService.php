@@ -20,7 +20,7 @@ class RuleTelegramBotService extends BaseRuleTelegramChatService implements Base
         $botType = $this->bot->type;
 
         /** @var BaseServiceInterface $ruleService */
-        $ruleService = new $this->rules[$chatType]($this->bot, $this->update);
+        $ruleService = new $this->rules[$botType]($this->bot, $this->update);
 
         return $ruleService->run();
     }

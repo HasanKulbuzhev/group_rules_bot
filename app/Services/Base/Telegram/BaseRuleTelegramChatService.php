@@ -19,5 +19,6 @@ abstract class BaseRuleTelegramChatService extends BaseRuleService
 //        $this->update = end($updates);
 
         $this->update = is_null($update)? $bot->telegram->getWebhookUpdate() : $update;
+        dd($this->update);
     }
 }
