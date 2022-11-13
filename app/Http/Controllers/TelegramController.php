@@ -10,6 +10,7 @@ use App\Models\TelegramBot;
 use App\Services\TelegramBot\SyncTelegramUserTelegramBotService;
 use App\Services\TelegramUser\CreateTelegramUserService;
 use Exception;
+use Illuminate\Http\Request;
 use Throwable;
 
 class TelegramController extends Controller
@@ -52,6 +53,21 @@ class TelegramController extends Controller
         }
 
         (new RuleTelegramBotService($bot))->run();
+
+        return 'ok';
+    }
+
+    public function test(Request $request)
+    {
+        /** @var TelegramBot $bot */
+        $bot = TelegramBot::query()
+            ->where('token', config('telegram.bots.mybot.token'))
+            ->where('type', TelegramBotTypeEnum::BASE)->first();
+
+        $bot->telegram->sendMessage([
+            'chat_id' => config('telegram.bots.mybot.admin'),
+            'text' => (string) json_encode($request->post())
+        ]);
 
         return 'ok';
     }

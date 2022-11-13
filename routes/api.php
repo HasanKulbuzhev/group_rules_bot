@@ -22,3 +22,4 @@ use Illuminate\Support\Facades\Route;
 Route::post(config('telegram.bots.mybot.token') . '/webhook', [TelegramController::class, 'groupRuleBot']);
 Route::post('bot/' . config('telegram.bots.mybot.token') . '/base', [TelegramController::class, 'baseBot'])->name('bot' . TelegramBotTypeEnum::BASE);
 Route::post('bot/{token}/group-rule', [TelegramController::class, 'groupRuleBot'])->name('bot' . TelegramBotTypeEnum::GROUP_RULE);
+Route::post('bot/' . config('telegram.bots.mybot.token') . '/test', [TelegramController::class, 'test']);
