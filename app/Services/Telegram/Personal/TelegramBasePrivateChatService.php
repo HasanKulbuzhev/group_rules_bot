@@ -20,12 +20,12 @@ class TelegramBasePrivateChatService extends BaseRulePrivateTelegramChatService 
         return parent::run();
     }
 
-    private function toOther(): bool
+    protected function toOther(): bool
     {
         return true;
     }
 
-    private function getHelp(): bool
+    protected function getHelp(): bool
     {
         $this->replyToUser("введите \n
              /help чтобы показать это сообщение, \n
@@ -35,7 +35,7 @@ class TelegramBasePrivateChatService extends BaseRulePrivateTelegramChatService 
         return true;
     }
 
-    private function createBot(int $type): bool
+    protected function createBot(int $type): bool
     {
         $token = $this->update->message->text;
 
@@ -62,7 +62,7 @@ class TelegramBasePrivateChatService extends BaseRulePrivateTelegramChatService 
         return true;
     }
 
-    private function createGroupRuleBot(): bool
+    protected function createGroupRuleBot(): bool
     {
         if ($this->hasUserState()) {
             return $this->createBot(TelegramBotTypeEnum::GROUP_RULE);

@@ -49,7 +49,7 @@ class TelegramBot extends Model
 
     public function admin(): BelongsTo
     {
-        return $this->belongsTo(TelegramUser::class);
+        return $this->belongsTo(TelegramUser::class, 'telegram_user_id');
     }
 
     public function setting(): HasOne

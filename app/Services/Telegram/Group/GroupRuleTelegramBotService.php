@@ -19,6 +19,10 @@ class GroupRuleTelegramBotService extends BaseRuleTelegramChatService implements
     {
         $chatType = (new TelegramUpdateService($this->update))->getChatType();
 
+        if (!in_array($chatType, $this->rules)) {
+            return true;
+        }
+
         /** @var BaseServiceInterface $ruleService */
         $ruleService = new $this->rules[$chatType]($this->bot, $this->update);
 

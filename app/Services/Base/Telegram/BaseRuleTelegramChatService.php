@@ -14,10 +14,6 @@ abstract class BaseRuleTelegramChatService extends BaseRuleService
     public function __construct(TelegramBot $bot, Update $update = null)
     {
         $this->bot = $bot;
-//        $this->bot->telegram->setAccessToken('asdfadsf');
-//        $updates = $this->bot->telegram->getUpdates(['allowed_updates' => []]);
-//        $this->update = end($updates);
-
-        $this->update = is_null($update)? $bot->telegram->getWebhookUpdate() : $update;
+        $this->update = is_null($update) ? $bot->telegram->getWebhookUpdate() : $update;
     }
 }

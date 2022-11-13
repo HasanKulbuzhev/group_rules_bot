@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Telegram\TelegramBotTypeEnum;
+use App\Models\TelegramUser;
 use App\Services\Telegram\RuleTelegramBotService;
 use App\Services\TelegramBot\CreateTelegramBotService;
 use App\Models\TelegramBot;
+use App\Services\TelegramBot\SyncTelegramUserTelegramBotService;
+use App\Services\TelegramUser\CreateTelegramUserService;
+use Exception;
 use Throwable;
 
 class TelegramController extends Controller
@@ -38,17 +42,13 @@ class TelegramController extends Controller
 
     public function baseBot()
     {
+        /** @var TelegramBot $bot */
         $bot = TelegramBot::query()
             ->where('token', config('telegram.bots.mybot.token'))
             ->where('type', TelegramBotTypeEnum::BASE)->first();
 
         if (is_null($bot)) {
-            $bot = new TelegramBot([
-                'token' => config('telegram.bots.mybot.token'),
-                'type' =>  TelegramBotTypeEnum::BASE
-            ]);
-
-            (new CreateTelegramBotService($bot, []));
+            throw (new Exception('Вы не создали базового бота!'));
         }
 
         (new RuleTelegramBotService($bot))->run();
