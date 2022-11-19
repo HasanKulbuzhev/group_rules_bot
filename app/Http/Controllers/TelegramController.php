@@ -17,6 +17,7 @@ class TelegramController extends Controller
 {
     public function groupRuleBot(string $token): string
     {
+        /** @var TelegramBot $bot */
         $bot = TelegramBot::query()
             ->where('token', $token)
             ->where('type', TelegramBotTypeEnum::GROUP_RULE)
@@ -25,7 +26,6 @@ class TelegramController extends Controller
         if (is_null($bot)) {
             return 'not ok';
         }
-
 
         try {
             (new RuleTelegramBotService($bot))->run();

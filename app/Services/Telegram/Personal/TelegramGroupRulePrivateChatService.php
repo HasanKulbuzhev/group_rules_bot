@@ -12,7 +12,7 @@ class TelegramGroupRulePrivateChatService extends BaseRulePrivateTelegramChatSer
         '/help' => 'getHelp',
         '/cancel' => 'cancel',
         '/set_rules' => 'setRules',
-        MessageTypeEnum::OTHER => 'toOther',
+        MessageTypeEnum::OTHER => 'other',
     ];
 
     public function run(): bool
@@ -20,12 +20,7 @@ class TelegramGroupRulePrivateChatService extends BaseRulePrivateTelegramChatSer
         return parent::run();
     }
 
-    private function toOther(): bool
-    {
-        return true;
-    }
-
-    private function getHelp(): bool
+    protected function getHelp(): bool
     {
         $this->bot->telegram->sendMessage([
             'chat_id' => $this->update->message->chat->id,
@@ -37,7 +32,7 @@ class TelegramGroupRulePrivateChatService extends BaseRulePrivateTelegramChatSer
         return true;
     }
 
-    private function setRules()
+    protected function setRules()
     {
         if (\Cache::has($this->getUserStatePath())) {
             $this->bot->setting->rule = $this->update->message->text;
