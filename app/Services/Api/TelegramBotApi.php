@@ -36,7 +36,7 @@ class TelegramBotApi extends Api
     public function isValidToken(): bool
     {
         try {
-            return isset($this->getMe()->id);
+            return (bool) $this->getMe()->id;
         } catch (Exception $exception) {
             return false;
         }
