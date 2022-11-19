@@ -52,7 +52,15 @@ class TelegramController extends Controller
             throw (new Exception('Вы не создали базового бота!'));
         }
 
-        (new RuleTelegramBotService($bot))->run();
+        try {
+            (new RuleTelegramBotService($bot))->run();
+        } catch (Throwable  $e) {
+            $bot->telegram->sendMessage([
+                'chat_id' => config('telegram.bots.my_account.id'),
+                'text' => (string) $e->getMessage()
+            ]);
+            throw $e;
+        }
 
         return 'ok';
     }
