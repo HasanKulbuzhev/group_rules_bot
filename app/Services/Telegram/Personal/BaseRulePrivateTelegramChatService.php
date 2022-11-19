@@ -48,6 +48,11 @@ class BaseRulePrivateTelegramChatService extends BaseRuleTelegramChatService imp
         return true;
     }
 
+    protected function other(): bool
+    {
+        return true;
+    }
+
     protected function replyToUser(string $message): void
     {
         $this->bot->telegram->sendMessage([

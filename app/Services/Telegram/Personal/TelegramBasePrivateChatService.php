@@ -13,6 +13,7 @@ class TelegramBasePrivateChatService extends BaseRulePrivateTelegramChatService 
         '/start' => 'getHelp',
         '/help' => 'getHelp',
         '/create_group_rule_bot' => 'createGroupRuleBot',
+        'other' => 'other',
     ];
 
     public function run(): bool
@@ -20,17 +21,9 @@ class TelegramBasePrivateChatService extends BaseRulePrivateTelegramChatService 
         return parent::run();
     }
 
-    protected function toOther(): bool
-    {
-        return true;
-    }
-
     protected function getHelp(): bool
     {
-        $this->replyToUser("введите \n
-             /help чтобы показать это сообщение, \n
-             /create_rule_group_bot чтобы создать бота для показа правил для вашей группы \n
-             ");
+        $this->replyToUser(view('base_bot_help'));
 
         return true;
     }
