@@ -36,7 +36,7 @@ class TelegramBasePrivateChatService extends BaseRulePrivateTelegramChatService 
         $newBot->token = $token;
         if ($newBot->telegram->isValidToken()) {
             $isSave = (new CreateTelegramBotService($newBot, [
-                'type' => TelegramBotTypeEnum::BASE
+                'type' => $type
             ]))->run();
             if ($isSave) {
                 $newBot->telegram->setWebhook([
