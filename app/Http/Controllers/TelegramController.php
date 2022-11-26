@@ -3,13 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Telegram\TelegramBotTypeEnum;
-use App\Models\TelegramUser;
 use App\Services\Telegram\RuleTelegramBotService;
-use App\Services\TelegramBot\CreateTelegramBotService;
 use App\Models\TelegramBot;
-use App\Services\TelegramBot\SyncTelegramUserTelegramBotService;
-use App\Services\TelegramUser\CreateTelegramUserService;
-use DB;
 use Exception;
 use Illuminate\Http\Request;
 use Throwable;
@@ -72,6 +67,7 @@ class TelegramController extends Controller
         $bot = TelegramBot::query()
             ->where('token', config('telegram.bots.mybot.token'))
             ->where('type', TelegramBotTypeEnum::BASE)->first();
+
 
         $bot->telegram->sendMessage([
             'chat_id' => config('telegram.bots.mybot.admin'),
