@@ -27,7 +27,7 @@ class CreateBaseValues extends Seeder
             !$bot->admin()->exists()
         ) {
             $telegramUser = new TelegramUser();
-            (new CreateTelegramUserService($telegramUser, [], $bot))->run();
+            (new CreateTelegramUserService($telegramUser, ['chat_id' => config('telegram.bots.mybot.admin')], $bot))->run();
             $bot->telegram_user_id = $telegramUser->id;
         }
 

@@ -9,6 +9,7 @@ use App\Services\TelegramBot\CreateTelegramBotService;
 use App\Models\TelegramBot;
 use App\Services\TelegramBot\SyncTelegramUserTelegramBotService;
 use App\Services\TelegramUser\CreateTelegramUserService;
+use DB;
 use Exception;
 use Illuminate\Http\Request;
 use Throwable;
@@ -32,7 +33,7 @@ class TelegramController extends Controller
         } catch (Throwable  $e) {
             $bot->telegram->sendMessage([
                 'chat_id' => config('telegram.bots.my_account.id'),
-                'text' => (string) $e->getMessage()
+                'text' => (string)$e->getMessage()
             ]);
             throw $e;
         }
@@ -57,7 +58,7 @@ class TelegramController extends Controller
         } catch (Throwable  $e) {
             $bot->telegram->sendMessage([
                 'chat_id' => config('telegram.bots.my_account.id'),
-                'text' => (string) $e->getMessage()
+                'text' => (string)$e->getMessage()
             ]);
             throw $e;
         }
@@ -74,7 +75,7 @@ class TelegramController extends Controller
 
         $bot->telegram->sendMessage([
             'chat_id' => config('telegram.bots.mybot.admin'),
-            'text' => (string) json_encode($request->post())
+            'text' => (string)json_encode($request->post())
         ]);
 
         return 'ok';

@@ -5,7 +5,9 @@ namespace App\Services\Telegram\Personal;
 use App\Enums\Telegram\TelegramBotTypeEnum;
 use App\Interfaces\Base\BaseServiceInterface;
 use App\Models\TelegramBot;
+use App\Models\TelegramUser;
 use App\Services\TelegramBot\CreateTelegramBotService;
+use App\Services\TelegramUser\CreateTelegramUserService;
 
 class TelegramBasePrivateChatService extends BaseRulePrivateTelegramChatService implements BaseServiceInterface
 {
@@ -35,9 +37,17 @@ class TelegramBasePrivateChatService extends BaseRulePrivateTelegramChatService 
         $newBot = new TelegramBot();
         $newBot->token = $token;
         if ($newBot->telegram->isValidToken()) {
-            $isSave = (new CreateTelegramBotService($newBot, [
+            $user = TelegramUser::query()->where('telegram_id', $this->update->message->from->id)->first();
+            if (is_null($user)) {
+                $user = new TelegramUser();
+            }
+            $isSave = (new CreateTelegramUserService($user, $this->update->getChat()->toArray()))->run();
+            $newBot->telegram_id = $user->id;
+
+            $isSave = $isSave && (new CreateTelegramBotService($newBot, [
                 'type' => $type
             ]))->run();
+
             if ($isSave) {
                 $newBot->telegram->setWebhook([
                     'url' => route('bot'. $type, ['token' => $newBot->token])

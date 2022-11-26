@@ -18,13 +18,16 @@ class CreateTelegramUserService implements BaseServiceInterface
         if (is_null($bot)) {
             $bot = TelegramBot::query()->where('type', TelegramBotTypeEnum::BASE)->first();
         }
-        $userValue = $bot->telegram->getChat([
-            'chat_id' => config('telegram.bots.mybot.admin')
-        ])->toArray();
+
+        if (\Arr::get($data, 'chat_id', false)) {
+            $userValue = $bot->telegram->getChat([
+                'chat_id' => $data['chat_id']
+            ])->toArray();
+            $userValue['telegram_id'] = $userValue['id'];
+        }
 
         $this->data = array_merge(
-            $userValue,
-            ['telegram_id' => $userValue['id']],
+            $userValue ?? [],
             $data
             );
     }
