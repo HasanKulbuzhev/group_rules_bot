@@ -29,13 +29,14 @@ class TelegramGroupRuleChatService extends BaseRuleTelegramChatService implement
         $messageType = $updateService->getMessageType();
         $method = \Arr::get($this->rules, $messageType, MessageTypeEnum::OTHER);
         if (is_array($method)) {
-            foreach ($method as $type) {
+            foreach ($method as $type => $methodName) {
                 if (in_array($type, $updateService->getMessageInnerTypes($messageType))) {
-                    $method = $type;
+                    $method = $methodName;
                     break;
                 }
             }
         }
+
         return $this->$method();
     }
 
@@ -116,7 +117,7 @@ class TelegramGroupRuleChatService extends BaseRuleTelegramChatService implement
 
                 $warningMessageId = $this->bot->telegram->sendMessage([
                     'chat_id' => $chatId,
-                    'text' => '',
+                    'text' => 'Вы согласны с правилами группы?',
                     'reply_markup' => $inline_keyboard,
                     'parse_mode' => 'Markdown'
                 ]);

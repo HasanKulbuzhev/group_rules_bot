@@ -67,4 +67,18 @@ class BaseBotControllerTest extends TestCase
 
         $responseSetToken->assertStatus(200);
     }
+
+    public function testNewUser()
+    {
+        $response = $this->postJson(
+            route('bot' . TelegramBotTypeEnum::BASE),
+            $this->generateUpdate('/help', [MessageTypeEnum::COMMAND]),
+            [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ]
+        );
+
+        $response->assertStatus(200);
+    }
 }
