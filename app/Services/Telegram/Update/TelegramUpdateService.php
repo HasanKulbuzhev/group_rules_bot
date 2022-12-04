@@ -32,12 +32,12 @@ class TelegramUpdateService
 
     private function getChatIdToDefault(): int
     {
-        return $this->update->getMessage()->getChat()->getId();
+        return $this->update->message->chat->id ?? $this->update->callbackQuery->message->chat->id;
     }
 
     public function getChatType(): string
     {
-        return $this->update->getMessage()->getChat()->getType();
+        return $this->update->message->chat->type ?? $this->update->callbackQuery->message->chat->type;
     }
 
     public function getMessageType(): string
