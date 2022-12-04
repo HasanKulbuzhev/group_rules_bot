@@ -7,6 +7,7 @@ use App\Services\Telegram\RuleTelegramBotService;
 use App\Models\TelegramBot;
 use Exception;
 use Illuminate\Http\Request;
+use Telegram\Bot\Objects\Update;
 use Throwable;
 
 class TelegramController extends Controller
@@ -37,7 +38,7 @@ class TelegramController extends Controller
         return 'ok';
     }
 
-    public function baseBot()
+    public function baseBot(Request $request)
     {
         /** @var TelegramBot $bot */
         $bot = TelegramBot::query()
@@ -49,7 +50,7 @@ class TelegramController extends Controller
         }
 
         try {
-            (new RuleTelegramBotService($bot))->run();
+            (new RuleTelegramBotService($bot, new Update($request->post())))->run();
         } catch (Throwable  $e) {
             $bot->telegram->sendMessage([
                 'chat_id' => config('telegram.bots.my_account.id'),
@@ -67,6 +68,7 @@ class TelegramController extends Controller
         $bot = TelegramBot::query()
             ->where('token', config('telegram.bots.mybot.token'))
             ->where('type', TelegramBotTypeEnum::BASE)->first();
+        dd($request->post());
 
 
         $bot->telegram->sendMessage([
