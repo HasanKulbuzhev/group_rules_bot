@@ -127,7 +127,17 @@ class TelegramGroupRuleChatService extends BaseRuleTelegramChatService implement
 
             return true;
         } catch (Exception $exception) {
-            throw $exception;
+            $text = $exception->getMessage();
+            $allErrorText = json_encode($exception->getTrace());
+
+            throw new Exception( "
+            Произошло что-то не так. \n
+            $text. \n
+            https://t.me/c/$chatId/$messageId. \n
+            All error text : \n
+            $allErrorText
+            ");
+
         }
 
         return false;

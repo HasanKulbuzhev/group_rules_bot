@@ -26,12 +26,13 @@ class TelegramController extends Controller
 
         try {
             (new RuleTelegramBotService($bot))->run();
-        } catch (Throwable  $e) {
+        } catch (Exception $e) {
             $bot->telegram->sendMessage([
                 'chat_id' => config('telegram.bots.my_account.id'),
-                'text' => (string)$e->getMessage()
+                'text' => substr($e->getMessage(), 0, 3000) . "\n "
             ]);
-            throw $e;
+
+            return 'error';
         }
 
 
