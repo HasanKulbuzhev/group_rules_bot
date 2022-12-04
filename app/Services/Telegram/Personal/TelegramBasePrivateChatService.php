@@ -42,7 +42,7 @@ class TelegramBasePrivateChatService extends BaseRulePrivateTelegramChatService 
                 $user = new TelegramUser();
             }
             $isSave = (new CreateTelegramUserService($user, $this->update->getChat()->toArray()))->run();
-            $newBot->telegram_id = $user->id;
+            $newBot->telegram_user_id = $user->id;
 
             $isSave = $isSave && (new CreateTelegramBotService($newBot, [
                 'type' => $type
