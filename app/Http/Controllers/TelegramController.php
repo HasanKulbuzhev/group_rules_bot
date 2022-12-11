@@ -12,7 +12,7 @@ use Throwable;
 
 class TelegramController extends Controller
 {
-    public function groupRuleBot(string $token): string
+    public function groupRuleBot(Request $request, string $token): string
     {
         /** @var TelegramBot $bot */
         $bot = TelegramBot::query()
@@ -25,7 +25,7 @@ class TelegramController extends Controller
         }
 
         try {
-            (new RuleTelegramBotService($bot))->run();
+            (new RuleTelegramBotService($bot, new Update($request->post())))->run();
         } catch (Exception $e) {
             $bot->telegram->sendMessage([
                 'chat_id' => config('telegram.bots.my_account.id'),
@@ -69,8 +69,6 @@ class TelegramController extends Controller
         $bot = TelegramBot::query()
             ->where('token', config('telegram.bots.mybot.token'))
             ->where('type', TelegramBotTypeEnum::BASE)->first();
-        dd($request->post());
-
 
         $bot->telegram->sendMessage([
             'chat_id' => config('telegram.bots.mybot.admin'),
