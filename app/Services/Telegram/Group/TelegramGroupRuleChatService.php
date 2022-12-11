@@ -109,12 +109,12 @@ class TelegramGroupRuleChatService extends BaseRuleTelegramChatService implement
 
 
         try {
-            foreach ($newUsers as $user) {
-                $this->bot->telegram->deleteMessage([
-                    'chat_id' => $chatId,
-                    'message_id' => $messageId,
-                ]);
+            $this->bot->telegram->deleteMessage([
+                'chat_id' => $chatId,
+                'message_id' => $messageId,
+            ]);
 
+            foreach ($newUsers as $user) {
                 $warningMessageId = $this->bot->telegram->sendMessage([
                     'chat_id' => $chatId,
                     'text' => 'Вы согласны с правилами группы?',
@@ -130,7 +130,7 @@ class TelegramGroupRuleChatService extends BaseRuleTelegramChatService implement
             $text = $exception->getMessage();
             $allErrorText = json_encode($exception->getTrace());
 
-            throw new Exception( "
+            throw new Exception("
             Произошло что-то не так. \n
             $text. \n
             https://t.me/c/$chatId/$messageId. \n
