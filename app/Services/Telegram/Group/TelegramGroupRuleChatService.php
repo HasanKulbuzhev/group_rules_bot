@@ -27,12 +27,14 @@ class TelegramGroupRuleChatService extends BaseRuleTelegramChatService implement
     {
         $updateService = (new TelegramUpdateService($this->update));
         $messageType = $updateService->getMessageType();
-        $method = \Arr::get($this->rules, $messageType, MessageTypeEnum::OTHER);
-        if (is_array($method)) {
-            foreach ($method as $type => $methodName) {
+        $methods = \Arr::get($this->rules, $messageType, MessageTypeEnum::OTHER);
+        if (is_array($methods)) {
+            foreach ($methods as $type => $methodName) {
                 if (in_array($type, $updateService->getMessageInnerTypes($messageType))) {
                     $method = $methodName;
                     break;
+                } else {
+                    $method = \Arr::get($this->rules, MessageTypeEnum::OTHER);
                 }
             }
         }
@@ -40,7 +42,7 @@ class TelegramGroupRuleChatService extends BaseRuleTelegramChatService implement
         return $this->$method();
     }
 
-    private function defalut(): bool
+    private function default(): bool
     {
         return true;
     }
