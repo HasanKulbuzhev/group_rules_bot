@@ -73,7 +73,7 @@ class TelegramGroupRuleChatService extends BaseRuleTelegramChatService implement
         $userId = $this->update->callbackQuery->from->id;
 
         if (Cache::has($this->getWarningMessagePath($chatId, $userId))) {
-            $warningMessageId = Cache::get(CacheTypeEnum::GROUP_RULES_TYPE . ".$chatId.$userId.message_id");
+            $warningMessageId = Cache::get($this->getWarningMessagePath($chatId, $userId));
             try {
                 Cache::delete($this->getWarningMessagePath($chatId, $userId));
                 $this->bot->telegram->deleteMessage([
