@@ -73,7 +73,6 @@ class TelegramGroupRuleChatService extends BaseRuleTelegramChatService implement
         $userId = $this->update->callbackQuery->from->id;
 
         if (Cache::has($this->getWarningMessagePath($chatId, $userId))) {
-            $warningMessageId = Cache::get($this->getWarningMessagePath($chatId, $userId));
             try {
                 Cache::delete($this->getWarningMessagePath($chatId, $userId));
                 $this->bot->telegram->deleteMessage([
@@ -90,6 +89,7 @@ class TelegramGroupRuleChatService extends BaseRuleTelegramChatService implement
                 throw new Exception("
                 Произошло что-то не так. \n
                 $text. \n
+                https://t.me/c/$chatId/$warningMessageId. \n
                 All error text : \n
                 $allErrorText
                 ");
