@@ -84,7 +84,15 @@ class TelegramGroupRuleChatService extends BaseRuleTelegramChatService implement
                 return true;
             } catch (Exception $exception) {
                 Cache::put($this->getWarningMessagePath($chatId, $userId), $warningMessageId);
-                return false;
+                $text = $exception->getMessage();
+                $allErrorText = json_encode($exception->getTrace());
+
+                throw new Exception("
+                Произошло что-то не так. \n
+                $text. \n
+                All error text : \n
+                $allErrorText
+                ");
             }
         }
 
