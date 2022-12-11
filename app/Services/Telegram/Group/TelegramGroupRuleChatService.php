@@ -130,7 +130,7 @@ class TelegramGroupRuleChatService extends BaseRuleTelegramChatService implement
                     'text' => 'Вы согласны с правилами группы?',
                     'reply_markup' => $inline_keyboard,
                     'parse_mode' => 'Markdown'
-                ]);
+                ])->messageId;
 
                 Cache::put($this->getWarningMessagePath($chatId, $user->id), $warningMessageId);
             }
