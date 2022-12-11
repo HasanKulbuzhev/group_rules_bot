@@ -7,6 +7,7 @@ use App\Enums\Telegram\MessageTypeEnum;
 use App\Interfaces\Base\BaseServiceInterface;
 use App\Services\Base\Telegram\BaseRuleTelegramChatService;
 use App\Services\Telegram\Update\TelegramUpdateService;
+use Arr;
 use Cache;
 use Exception;
 
@@ -19,6 +20,7 @@ class TelegramGroupRuleChatService extends BaseRuleTelegramChatService implement
         ],
         MessageTypeEnum::GROUP_RULE_TYPE => [
             MessageTypeEnum::NEW_CHAT_MEMBERS => 'newChatMember',
+            MessageTypeEnum::LEFT_CHAT_PARTICIPANT => 'leftChatUser',
         ],
         MessageTypeEnum::OTHER => 'default',
     ];
@@ -27,14 +29,14 @@ class TelegramGroupRuleChatService extends BaseRuleTelegramChatService implement
     {
         $updateService = (new TelegramUpdateService($this->update));
         $messageType = $updateService->getMessageType();
-        $methods = \Arr::get($this->rules, $messageType, MessageTypeEnum::OTHER);
+        $methods = Arr::get($this->rules, $messageType, MessageTypeEnum::OTHER);
         if (is_array($methods)) {
             foreach ($methods as $type => $methodName) {
                 if (in_array($type, $updateService->getMessageInnerTypes($messageType))) {
                     $method = $methodName;
                     break;
                 } else {
-                    $method = \Arr::get($this->rules, MessageTypeEnum::OTHER);
+                    $method = Arr::get($this->rules, MessageTypeEnum::OTHER);
                 }
             }
         }
@@ -74,17 +76,16 @@ class TelegramGroupRuleChatService extends BaseRuleTelegramChatService implement
         $chatId = $this->update->callbackQuery->message->chat->id;
         $userId = $this->update->callbackQuery->from->id;
 
-        if (Cache::has($this->getWarningMessagePath($chatId, $userId))) {
+        if ($warningMessageId = Cache::get($this->getWarningMessagePath($chatId, $userId))) {
             try {
-                Cache::delete($this->getWarningMessagePath($chatId, $userId));
                 $this->bot->telegram->deleteMessage([
                     'chat_id' => $chatId,
                     'message_id' => $warningMessageId,
                 ]);
+                Cache::delete($this->getWarningMessagePath($chatId, $userId));
 
                 return true;
             } catch (Exception $exception) {
-                Cache::put($this->getWarningMessagePath($chatId, $userId), $warningMessageId);
                 $text = $exception->getMessage();
                 $allErrorText = json_encode($exception->getTrace());
 
@@ -134,6 +135,38 @@ class TelegramGroupRuleChatService extends BaseRuleTelegramChatService implement
 
                 Cache::put($this->getWarningMessagePath($chatId, $user->id), $warningMessageId);
             }
+
+            return true;
+        } catch (Exception $exception) {
+            $text = $exception->getMessage();
+            $allErrorText = json_encode($exception->getTrace());
+
+            throw new Exception("
+            Произошло что-то не так. \n
+            $text. \n
+            https://t.me/c/$chatId/$messageId. \n
+            All error text : \n
+            $allErrorText
+            ");
+
+        }
+
+        return false;
+    }
+
+    public function leftChatUser(): bool
+    {
+        $chatId = $this->update->getChat()->id;
+        $messageId = $this->update->message->messageId;
+        $user = $this->update->message->leftChatMember;
+
+        try {
+            $this->bot->telegram->deleteMessage([
+                'chat_id' => $chatId,
+                'message_id' => $messageId,
+            ]);
+
+            Cache::delete($this->getWarningMessagePath($chatId, $user->id));
 
             return true;
         } catch (Exception $exception) {
