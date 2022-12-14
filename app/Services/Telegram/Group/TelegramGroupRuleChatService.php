@@ -130,7 +130,7 @@ class TelegramGroupRuleChatService extends BaseRuleChatService implements BaseSe
             foreach ($newUsers as $user) {
                 $warningMessageId = $this->bot->telegram->sendMessage([
                     'chat_id' => $chatId,
-                    'text' => 'Вы согласны с правилами группы?',
+                    'text' => "Прочитайте правила группы и согласитесь с ними. \n {$this->bot->setting->rule}",
                     'reply_markup' => $inline_keyboard,
                     'parse_mode' => 'Markdown'
                 ])->messageId;

@@ -5,7 +5,7 @@ namespace App\Services\Telegram\Personal;
 use App\Enums\Telegram\MessageTypeEnum;
 use App\Interfaces\Base\BaseService;
 
-class TelegramGroupRulePrivateChatService extends BaseRulePrivateChatService implements BaseService
+class GroupRulePrivateChatService extends BaseRulePrivateChatService implements BaseService
 {
     protected array $rules = [
         '/start' => 'getHelp',

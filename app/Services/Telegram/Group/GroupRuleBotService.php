@@ -5,14 +5,14 @@ namespace App\Services\Telegram\Group;
 use App\Enums\Telegram\ChatTypeEnum;
 use App\Interfaces\Base\BaseService;
 use App\Services\Base\Telegram\BaseRuleChatService;
-use App\Services\Telegram\Personal\TelegramGroupRulePrivateChatService;
+use App\Services\Telegram\Personal\GroupRulePrivateChatService;
 use App\Services\Telegram\Update\TelegramUpdateService;
 
 class GroupRuleBotService extends BaseRuleChatService implements BaseService
 {
     protected array $rules = [
         ChatTypeEnum::GROUP_CHAT => TelegramGroupRuleChatService::class,
-        ChatTypeEnum::PRIVATE_CHAT => TelegramGroupRulePrivateChatService::class
+        ChatTypeEnum::PRIVATE_CHAT => GroupRulePrivateChatService::class
     ];
 
     public function run(): bool
