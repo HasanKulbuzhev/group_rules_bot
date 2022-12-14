@@ -92,7 +92,7 @@ class TelegramGroupRuleChatService extends BaseRuleChatService implements BaseSe
                 $allErrorText = json_encode($exception->getTrace());
 
                 throw new Exception("
-                Произошло что-то не так. \n
+                С ботом @{$this->bot->username} произошло что-то не так. \n
                 $text. \n
                 https://t.me/c/$chatId/$warningMessageId. \n
                 All error text : \n
@@ -144,7 +144,7 @@ class TelegramGroupRuleChatService extends BaseRuleChatService implements BaseSe
             $allErrorText = json_encode($exception->getTrace());
 
             throw new Exception("
-            Произошло что-то не так. \n
+            С ботом @{$this->bot->username} произошло что-то не так. \n
             $text. \n
             https://t.me/c/$chatId/$messageId. \n
             All error text : \n
@@ -176,7 +176,7 @@ class TelegramGroupRuleChatService extends BaseRuleChatService implements BaseSe
             $allErrorText = json_encode($exception->getTrace());
 
             throw new Exception("
-            Произошло что-то не так. \n
+            С ботом @{$this->bot->username} произошло что-то не так. \n
             $text. \n
             https://t.me/c/$chatId/$messageId. \n
             All error text : \n
