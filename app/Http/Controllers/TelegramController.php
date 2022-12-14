@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Telegram\TelegramBotTypeEnum;
-use App\Services\Telegram\RuleTelegramBotService;
+use App\Services\Telegram\RuleBotService;
 use App\Models\TelegramBot;
 use Exception;
 use Illuminate\Http\Request;
@@ -25,7 +25,7 @@ class TelegramController extends Controller
         }
 
         try {
-            (new RuleTelegramBotService($bot, new Update($request->post())))->run();
+            (new RuleBotService($bot, new Update($request->post())))->run();
         } catch (Exception $e) {
             $bot->telegram->sendMessage([
                 'chat_id' => config('telegram.bots.my_account.id'),
@@ -51,7 +51,7 @@ class TelegramController extends Controller
         }
 
         try {
-            (new RuleTelegramBotService($bot, new Update($request->post())))->run();
+            (new RuleBotService($bot, new Update($request->post())))->run();
         } catch (Throwable  $e) {
             $bot->telegram->sendMessage([
                 'chat_id' => config('telegram.bots.my_account.id'),

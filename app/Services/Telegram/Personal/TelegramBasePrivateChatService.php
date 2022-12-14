@@ -3,13 +3,13 @@
 namespace App\Services\Telegram\Personal;
 
 use App\Enums\Telegram\TelegramBotTypeEnum;
-use App\Interfaces\Base\BaseServiceInterface;
+use App\Interfaces\Base\BaseService;
 use App\Models\TelegramBot;
 use App\Models\TelegramUser;
 use App\Services\TelegramBot\CreateTelegramBotService;
 use App\Services\TelegramUser\CreateTelegramUserService;
 
-class TelegramBasePrivateChatService extends BaseRulePrivateTelegramChatService implements BaseServiceInterface
+class TelegramBasePrivateChatService extends BaseRulePrivateChatService implements BaseService
 {
     protected array $rules = [
         '/start' => 'getHelp',

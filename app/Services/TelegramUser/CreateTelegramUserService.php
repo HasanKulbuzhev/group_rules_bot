@@ -3,11 +3,11 @@
 namespace App\Services\TelegramUser;
 
 use App\Enums\Telegram\TelegramBotTypeEnum;
-use App\Interfaces\Base\BaseServiceInterface;
+use App\Interfaces\Base\BaseService;
 use App\Models\TelegramBot;
 use App\Models\TelegramUser;
 
-class CreateTelegramUserService implements BaseServiceInterface
+class CreateTelegramUserService implements BaseService
 {
     private TelegramUser $telegramUser;
     private array $data;

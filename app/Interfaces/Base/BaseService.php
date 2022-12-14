@@ -2,7 +2,7 @@
 
 namespace App\Interfaces\Base;
 
-interface BaseServiceInterface
+interface BaseService
 {
     public function run(): bool;
 }

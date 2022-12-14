@@ -4,13 +4,13 @@ namespace App\Services\Telegram\Personal;
 
 use App\Enums\Cache\CacheTypeEnum;
 use App\Enums\Telegram\MessageTypeEnum;
-use App\Interfaces\Base\BaseServiceInterface;
-use App\Services\Base\Telegram\BaseRuleTelegramChatService;
+use App\Interfaces\Base\BaseService;
+use App\Services\Base\Telegram\BaseRuleChatService;
 use App\Services\Telegram\Update\TelegramUpdateService;
 use Arr;
 use Cache;
 
-class BaseRulePrivateTelegramChatService extends BaseRuleTelegramChatService implements BaseServiceInterface
+class BaseRulePrivateChatService extends BaseRuleChatService implements BaseService
 {
     public function run(): bool
     {

@@ -4,14 +4,14 @@ namespace App\Services\Telegram\Group;
 
 use App\Enums\Cache\CacheTypeEnum;
 use App\Enums\Telegram\MessageTypeEnum;
-use App\Interfaces\Base\BaseServiceInterface;
-use App\Services\Base\Telegram\BaseRuleTelegramChatService;
+use App\Interfaces\Base\BaseService;
+use App\Services\Base\Telegram\BaseRuleChatService;
 use App\Services\Telegram\Update\TelegramUpdateService;
 use Arr;
 use Cache;
 use Exception;
 
-class TelegramGroupRuleChatService extends BaseRuleTelegramChatService implements BaseServiceInterface
+class TelegramGroupRuleChatService extends BaseRuleChatService implements BaseService
 {
     protected array $rules = [
         MessageTypeEnum::VALUE_TYPE => 'ruleMessageText',
@@ -39,6 +39,8 @@ class TelegramGroupRuleChatService extends BaseRuleTelegramChatService implement
                     $method = Arr::get($this->rules, MessageTypeEnum::OTHER);
                 }
             }
+        } else {
+            $method = $methods;
         }
 
         return $this->$method();
