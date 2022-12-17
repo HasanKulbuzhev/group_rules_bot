@@ -11,7 +11,7 @@ use App\Services\Telegram\Update\TelegramUpdateService;
 class GroupRuleBotService extends BaseRuleChatService implements BaseService
 {
     protected array $rules = [
-        ChatTypeEnum::GROUP_CHAT => TelegramGroupRuleChatService::class,
+        ChatTypeEnum::GROUP_CHAT => GroupRuleChatService::class,
         ChatTypeEnum::PRIVATE_CHAT => GroupRulePrivateChatService::class
     ];
 

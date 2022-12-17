@@ -29,7 +29,7 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
             return $this->$method();
         }
 
-        if (Cache::has($this->getUserStatePath())) {
+        if ($this->hasUserState()) {
             $rule = Cache::get($this->getUserStatePath());
             $method = Arr::get($this->rules, $rule, MessageTypeEnum::OTHER);
             return $this->$method();
@@ -53,31 +53,36 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
         return true;
     }
 
-    protected function replyToUser(string $message): void
+    protected function reply(string $message): void
     {
         $this->bot->telegram->sendMessage([
-            'chat_id' => $this->update->message->from->id,
+            'chat_id' => $this->update->message->chat->id,
             'text' => $message
         ]);
     }
 
-    protected function getUserStatePath(): string
+    protected function getUserStatePath(bool $value = false): string
     {
-        return CacheTypeEnum::PRIVATE_RULE_TYPE . ".{$this->bot->telegram_id}.{$this->update->message->from->id}";
+        return CacheTypeEnum::PRIVATE_RULE_TYPE . ".{$this->bot->telegram_id}.{$this->update->message->from->id}." . (int) $value;
     }
 
-    protected function setUserState(string $string)
+    protected function setUserState(string $string, $value = null)
     {
         \Cache::put($this->getUserStatePath(), $string);
+        if ($value) {
+            \Cache::put($this->getUserStatePath(true), $value);
+        }
     }
 
-    protected function hasUserState(): bool
+    protected function hasUserState(bool $value = false): bool
     {
-        return \Cache::has($this->getUserStatePath());
+        return \Cache::has($this->getUserStatePath($value));
     }
 
     protected function resetUserState()
     {
         Cache::delete($this->getUserStatePath());
+        if ($this->hasUserState())
+        Cache::delete($this->getUserStatePath(true));
     }
 }

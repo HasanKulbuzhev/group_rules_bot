@@ -6,12 +6,13 @@ use App\Enums\Cache\CacheTypeEnum;
 use App\Enums\Telegram\MessageTypeEnum;
 use App\Interfaces\Base\BaseService;
 use App\Services\Base\Telegram\BaseRuleChatService;
+use App\Services\Telegram\Base\BaseGroupChatService;
 use App\Services\Telegram\Update\TelegramUpdateService;
 use Arr;
 use Cache;
 use Exception;
 
-class TelegramGroupRuleChatService extends BaseRuleChatService implements BaseService
+class GroupRuleChatService extends BaseGroupChatService implements BaseService
 {
     protected array $rules = [
         MessageTypeEnum::VALUE_TYPE => 'ruleMessageText',
@@ -22,33 +23,12 @@ class TelegramGroupRuleChatService extends BaseRuleChatService implements BaseSe
             MessageTypeEnum::NEW_CHAT_MEMBERS => 'newChatMember',
             MessageTypeEnum::LEFT_CHAT_PARTICIPANT => 'leftChatUser',
         ],
-        MessageTypeEnum::OTHER => 'default',
+        MessageTypeEnum::OTHER => 'other',
     ];
 
     public function run(): bool
     {
-        $updateService = (new TelegramUpdateService($this->update));
-        $messageType = $updateService->getMessageType();
-        $methods = Arr::get($this->rules, $messageType, MessageTypeEnum::OTHER);
-        if (is_array($methods)) {
-            foreach ($methods as $type => $methodName) {
-                if (in_array($type, $updateService->getMessageInnerTypes($messageType))) {
-                    $method = $methodName;
-                    break;
-                } else {
-                    $method = Arr::get($this->rules, MessageTypeEnum::OTHER);
-                }
-            }
-        } else {
-            $method = $methods;
-        }
-
-        return $this->$method();
-    }
-
-    private function default(): bool
-    {
-        return true;
+        return parent::run();
     }
 
     private function ruleMessageText(): bool

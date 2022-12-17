@@ -12,6 +12,30 @@ use Throwable;
 
 class TelegramController extends Controller
 {
+    public function baseBot(Request $request)
+    {
+        /** @var TelegramBot $bot */
+        $bot = TelegramBot::query()
+            ->where('token', config('telegram.bots.mybot.token'))
+            ->where('type', TelegramBotTypeEnum::BASE)->first();
+
+        if (is_null($bot)) {
+            throw (new Exception('Вы не создали базового бота!'));
+        }
+
+        try {
+            (new RuleBotService($bot, new Update($request->post())))->run();
+        } catch (Throwable  $e) {
+            $bot->telegram->sendMessage([
+                'chat_id' => config('telegram.bots.my_account.id'),
+                'text' => (string)$e->getMessage()
+            ]);
+            throw $e;
+        }
+
+        return 'ok';
+    }
+
     public function groupRuleBot(Request $request, string $token): string
     {
         /** @var TelegramBot $bot */
@@ -39,26 +63,29 @@ class TelegramController extends Controller
         return 'ok';
     }
 
-    public function baseBot(Request $request)
+    public function searchAnswerBot(Request $request, string $token): string
     {
         /** @var TelegramBot $bot */
         $bot = TelegramBot::query()
-            ->where('token', config('telegram.bots.mybot.token'))
-            ->where('type', TelegramBotTypeEnum::BASE)->first();
+            ->where('token', $token)
+            ->where('type', TelegramBotTypeEnum::SEARCH_ANSWER)
+            ->first();
 
         if (is_null($bot)) {
-            throw (new Exception('Вы не создали базового бота!'));
+            return 'not ok';
         }
 
         try {
             (new RuleBotService($bot, new Update($request->post())))->run();
-        } catch (Throwable  $e) {
+        } catch (Exception $e) {
             $bot->telegram->sendMessage([
                 'chat_id' => config('telegram.bots.my_account.id'),
-                'text' => (string)$e->getMessage()
+                'text' => substr($e->getMessage(), 0, 3000) . "\n "
             ]);
-            throw $e;
+
+            return 'error';
         }
+
 
         return 'ok';
     }

@@ -15,6 +15,7 @@ class TelegramBasePrivateChatService extends BaseRulePrivateChatService implemen
         '/start' => 'getHelp',
         '/help' => 'getHelp',
         '/create_group_rule_bot' => 'createGroupRuleBot',
+        '/create_search_answer_bot' => 'createSearchAnswerBot',
         'other' => 'other',
     ];
 
@@ -25,7 +26,7 @@ class TelegramBasePrivateChatService extends BaseRulePrivateChatService implemen
 
     protected function getHelp(): bool
     {
-        $this->replyToUser(view('base_bot_help'));
+        $this->reply(view('base_bot_help'));
 
         return true;
     }
@@ -52,12 +53,12 @@ class TelegramBasePrivateChatService extends BaseRulePrivateChatService implemen
                 $newBot->telegram->setWebhook([
                     'url' => route('bot'. $type, ['token' => $newBot->token])
                 ]);
-                $this->replyToUser("Ваш бот успешно сохранён!! \n Вы можете перейти к его настройке");
+                $this->reply("Ваш бот {$newBot->username} успешно сохранён!! \n Вы можете перейти к его настройке");
             }
 
             return true;
         } else {
-            $this->replyToUser('Вы ввели не валидный токен! ');
+            $this->reply('Вы ввели не валидный токен! ');
         }
 
         $this->resetUserState();
@@ -70,7 +71,7 @@ class TelegramBasePrivateChatService extends BaseRulePrivateChatService implemen
         if ($this->hasUserState()) {
             return $this->createBot(TelegramBotTypeEnum::GROUP_RULE);
         } else {
-            $this->replyToUser('Введите токен бота');
+            $this->reply('Введите токен бота');
 
             $this->setUserState('/create_group_rule_bot');
 
@@ -78,4 +79,16 @@ class TelegramBasePrivateChatService extends BaseRulePrivateChatService implemen
         }
     }
 
+    protected function createSearchAnswerBot(): bool
+    {
+        if ($this->hasUserState()) {
+            return $this->createBot(TelegramBotTypeEnum::SEARCH_ANSWER);
+        } else {
+            $this->reply('Введите токен бота');
+
+            $this->setUserState('/create_search_answer_bot');
+
+            return true;
+        }
+    }
 }
