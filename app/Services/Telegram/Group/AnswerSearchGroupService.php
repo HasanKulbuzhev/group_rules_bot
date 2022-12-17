@@ -4,6 +4,7 @@ namespace App\Services\Telegram\Group;
 
 use App\Enums\Telegram\MessageTypeEnum;
 use App\Interfaces\Base\BaseService;
+use App\Models\Hint\Hint;
 use App\Services\Telegram\Base\BaseGroupChatService;
 
 class AnswerSearchGroupService extends BaseGroupChatService implements BaseService
@@ -22,7 +23,8 @@ class AnswerSearchGroupService extends BaseGroupChatService implements BaseServi
 
     private function message(): bool
     {
-        $hint = $this->bot->hints()->ofName($this->update->message->text)->first();
+        /** @var Hint $hint */
+        $hint = $this->bot->hints()->ofTagName($this->update->message->text)->first();
         if ($hint) {
             $this->bot->telegram->sendMessage([
                 'chat_id' => $this->update->message->chat->id,
