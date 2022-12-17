@@ -25,7 +25,7 @@ abstract class BaseRuleChatService extends BaseRuleService
         }
 
         /** @var BaseService $ruleService */
-        $ruleService = new $this->rules[$botType]($this->bot, $this->update);
+        $ruleService = new $this->rules[$value]($this->bot, $this->update);
 
         return $ruleService->run();
     }
