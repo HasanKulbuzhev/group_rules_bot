@@ -15,6 +15,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     protected array $rules = [
         '/start' => 'getHelp',
         '/help' => 'getHelp',
+        '/get_setting' => 'getSetting',
         '/set_setting' => 'setAnswer',
         '/set_word' => 'setWord',
         '/set_synonym' => 'setSynonyms',
@@ -39,7 +40,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         return true;
     }
 
-    public function getSetting()
+    public function getSetting(): bool
     {
         $text = '';
         foreach ($this->bot->hints as $hint) {
@@ -64,7 +65,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         return true;
     }
 
-    protected function setAnswer()
+    protected function setAnswer(): bool
     {
         if ($this->hasUserState()) {
             $hint = new Hint([
@@ -72,12 +73,12 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             ]);
             $hint->owner_id = $this->bot->admin->id;
             $isSave = $hint->save();
-            $isSave = $this->bot->hints()->save($hint);
+            $isSave = $isSave && $this->bot->hints()->save($hint);
 
             if ($isSave) {
                 $this->reply("
                 Ответ успешно сохранен! \n
-                Теперь введите слово, по которому будет отдаваться это ответ.
+                Теперь введите слово, по которому будет отдаваться ответ.
                 ");
 
                 $this->setUserState('/set_word', $hint);
@@ -93,7 +94,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         }
     }
 
-    protected function setWord()
+    protected function setWord(): bool
     {
         if ($this->hasUserState()) {
             /** @var Hint $hint */
@@ -102,7 +103,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                 'name' => $this->update->message->text
             ]);
             $isSave = $tag->save();
-            $isSave = $hint->tags()->save($tag);
+            $isSave = $isSave && $hint->tags()->save($tag);
 
             if ($isSave) {
                 $this->reply("
