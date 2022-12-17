@@ -15,7 +15,7 @@ class CreateHintsTable extends Migration
     {
         Schema::create('hints', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('owner_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('owner_id')->constrained('telegram_users')->cascadeOnDelete();
             $table->string('title')->nullable();
             $table->text('text')->nullable();
             $table->timestamps();

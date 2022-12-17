@@ -27,6 +27,6 @@ class CreateBotHintAssignmentTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('project_hint_assignment');
+        Schema::dropIfExists('bot_hint_assignment');
     }
 }
