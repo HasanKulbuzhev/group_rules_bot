@@ -46,11 +46,8 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         foreach ($this->bot->hints as $hint) {
             $text .= "\n Ответ: {$hint->text}";
             foreach ($hint->tags as $tag) {
-                $text .= "\n Ключевое слово: {$tag->name} (";
-                foreach ($tag->synonyms as $synonym) {
-                    $text .= ", {$synonym->name}";
-                }
-                $text .= ").";
+                $synonyms = implode(', ', $tag->synonyms->pluck('name')->toArray());
+                $text .= "\n Ключевое слово: {$tag->name} ({$synonyms})";
             }
             $text .= "\n ======================== \n";
         }
@@ -124,7 +121,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         }
     }
 
-    protected function setSynonyms()
+    protected function setSynonyms(): bool
     {
         if ($this->hasUserState()) {
             $isSave = true;
@@ -133,7 +130,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                 /** @var Tag $tag */
                 $tag = \Cache::get($this->getUserStatePath(true));
 
-                foreach(explode(',', $this->update->message) as $name) {
+                foreach(explode(',', $this->update->message->text) as $name) {
                     $synonym = new TagSynonym([
                         'name' => trim($name)
                     ]);
