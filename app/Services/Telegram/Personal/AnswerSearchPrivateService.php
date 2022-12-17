@@ -18,7 +18,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         '/get_setting' => 'getSetting',
         '/set_setting' => 'setAnswer',
         '/set_word' => 'setWord',
-        '/set_synonym' => 'setSynonyms',
+        '/set_synonyms' => 'setSynonyms',
         MessageTypeEnum::OTHER => 'other',
     ];
 
@@ -129,7 +129,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         if ($this->hasUserState()) {
             $isSave = true;
 
-            if ($this->update->message !== '/skip') {
+            if ($this->update->message->text !== '/skip') {
                 /** @var Tag $tag */
                 $tag = \Cache::get($this->getUserStatePath(true));
 
