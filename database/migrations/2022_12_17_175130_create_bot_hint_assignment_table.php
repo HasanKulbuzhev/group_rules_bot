@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateHintTagAssignmentTable extends Migration
+class CreateBotHintAssignmentTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,10 @@ class CreateHintTagAssignmentTable extends Migration
      */
     public function up()
     {
-        Schema::create('hint_tag_assignment', function (Blueprint $table) {
+        Schema::create('bot_hint_assignment', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('bot_id')->constrained('telegram_bots')->cascadeOnDelete();
             $table->foreignId('hint_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('tag_id')->constrained()->cascadeOnDelete();
-            $table->boolean('require')->default(true);
-            $table->timestamps();
         });
     }
 
@@ -29,6 +27,6 @@ class CreateHintTagAssignmentTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('hint_tag_assignment');
+        Schema::dropIfExists('project_hint_assignment');
     }
 }
