@@ -8,4 +8,5 @@ class TelegramBotTypeEnum extends Enum
 {
     public const BASE = 0;
     public const GROUP_RULE = 1;
+    public const SEARCH_ANSWER = 2;
 }
