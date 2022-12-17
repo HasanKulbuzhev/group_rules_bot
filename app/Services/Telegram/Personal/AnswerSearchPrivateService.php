@@ -87,7 +87,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         } else {
             $this->reply("введите ответ, который вы хотите отдавать!");
 
-            $this->setUserState('/set_answer');
+            $this->setUserState('/set_setting');
 
             return true;
         }
