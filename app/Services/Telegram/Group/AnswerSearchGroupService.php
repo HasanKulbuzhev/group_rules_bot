@@ -22,7 +22,7 @@ class AnswerSearchGroupService extends BaseGroupChatService implements BaseServi
 
     private function message(): bool
     {
-        $hint = $this->bot->hints()->ofName($this->update->message)->first();
+        $hint = $this->bot->hints()->ofName($this->update->message->text)->first();
         if ($hint) {
             $this->bot->telegram->sendMessage([
                 'chat_id' => $this->update->message->chat->id,
