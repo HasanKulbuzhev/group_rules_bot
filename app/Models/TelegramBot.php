@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use App\Casts\TelegramBotCast;
+use App\Models\Hint\Hint;
 use App\Services\Api\TelegramBotApi;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
@@ -28,6 +31,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property TelegramBotApi $telegram
  *
  * @property TelegramUser $admin
+ * @property Collection|Hint[] $hints
  * @property RuleBotSetting $setting
  */
 class TelegramBot extends Model
@@ -55,6 +59,11 @@ class TelegramBot extends Model
     public function setting(): HasOne
     {
         return $this->hasOne(RuleBotSetting::class);
+    }
+
+    public function hints(): BelongsToMany
+    {
+        return $this->belongsToMany(Hint::class, 'bot_hint_assignment', 'bot_id', 'hint_id');
     }
 
     public function getBotToken(): string
