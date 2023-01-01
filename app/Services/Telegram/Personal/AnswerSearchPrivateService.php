@@ -27,6 +27,21 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         return parent::run();
     }
 
+    public function other(): bool
+    {
+        /** @var Hint $hint */
+        $hint = $this->bot->hints()->ofTagName($this->update->message->text)->first();
+        if ($hint) {
+            $this->bot->telegram->sendMessage([
+                'chat_id' => $this->update->message->chat->id,
+                'reply_to_message_id' => $this->update->message->messageId,
+                'text' => $hint->text,
+            ]);
+        }
+
+        return parent::other();
+    }
+
     protected function getHelp(): bool
     {
         $this->bot->telegram->sendMessage([
