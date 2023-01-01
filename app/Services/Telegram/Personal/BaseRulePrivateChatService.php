@@ -26,16 +26,18 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
         if (in_array(MessageTypeEnum::COMMAND, $updateService->getMessageInnerTypes())) {
             $this->resetUserState();
             $method = Arr::get($this->rules, $this->update->message->text, MessageTypeEnum::OTHER);
-            return $this->$method();
         }
 
-        if ($this->hasUserState()) {
+        if ($this->hasUserState() && !isset($method)) {
             $rule = Cache::get($this->getUserStatePath());
             $method = Arr::get($this->rules, $rule, MessageTypeEnum::OTHER);
-            return $this->$method();
         }
 
-        return true;
+        if (!isset($method)) {
+            $method = MessageTypeEnum::OTHER;
+        }
+
+        return $this->$method();
     }
 
     protected function sendErrorNotAdmin(): bool
