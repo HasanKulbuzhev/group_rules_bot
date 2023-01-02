@@ -21,7 +21,7 @@ class AnswerSearchGroupService extends BaseGroupChatService implements BaseServi
         return parent::run();
     }
 
-    private function message(): bool
+    public function message(): bool
     {
         /** @var Hint $hint */
         $hint = $this->bot->hints()->ofTagName($this->update->message->text)->first();
