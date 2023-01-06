@@ -96,10 +96,37 @@ class TelegramController extends Controller
         $bot = TelegramBot::query()
             ->where('token', config('telegram.bots.mybot.token'))
             ->where('type', TelegramBotTypeEnum::BASE)->first();
+        $update = new Update($request->post());
+
+        $inline_keyboard = json_encode([
+            'inline_keyboard' => [
+                [
+                    [
+                        'text' => 'text 1',
+                        'callback_data' => 'test',
+                    ],
+                    [
+                        'text' => 'text 2',
+                        'callback_data' => 'test2',
+                    ],
+                    [
+                        'text' => 'text 2',
+                        'callback_data' => 'test2',
+                    ],
+                ],
+                [
+                    [
+                        'text' => 'text 2',
+                        'callback_data' => 'test2',
+                    ],
+                ],
+            ]
+        ]);
 
         $bot->telegram->sendMessage([
             'chat_id' => config('telegram.bots.mybot.admin'),
-            'text' => (string)json_encode($request->post())
+            'text' => (string)json_encode($request->post()),
+            'reply_markup' => $inline_keyboard,
         ]);
 
         return 'ok';
