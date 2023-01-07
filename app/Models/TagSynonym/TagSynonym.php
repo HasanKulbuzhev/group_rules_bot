@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  *
- * @property-read Tag[] $tag
+ * @property-read Tag $tag
  */
 class TagSynonym extends Model
 {
@@ -37,5 +37,16 @@ class TagSynonym extends Model
         }
 
         return $builder->where('name', $words);
+    }
+
+    public function scopeOfBot(Builder $builder, $id): Builder
+    {
+        return $builder->whereHas('tag', function (Builder $builder) use ($id) {
+            $builder->whereHas('hints', function (Builder $builder) use ($id) {
+                $builder->ofBot('bots', function (Builder $builder) use ($id) {
+                    $builder->where('id', $id);
+                });
+            });
+        });
     }
 }

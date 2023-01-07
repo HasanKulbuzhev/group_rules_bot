@@ -9,14 +9,25 @@ use App\Interfaces\Base\BaseService;
 use App\Models\Hint\Hint;
 use App\Models\Tag\Tag;
 use App\Models\TagSynonym\TagSynonym;
+use App\Services\Telegram\Update\TelegramUpdateService;
 
 class AnswerSearchPrivateService extends BaseRulePrivateChatService implements BaseService
 {
     protected array $rules = [
         '/start' => 'getHelp',
         '/help' => 'getHelp',
+        '/cancel' => 'cancel',
         '/get_setting' => 'getSetting',
-        '/set_setting' => 'setAnswer',
+        '/get_hint' => 'getHint',
+        '/update_hint' => 'updateHint',
+        '/delete_hint' => 'deleteHint',
+        '/get_tag' => 'getTag',
+        '/update_tag' => 'updateTag',
+        '/delete_tag' => 'deleteTag',
+        '/get_synonym' => 'getSynonym',
+        '/update_synonym' => 'updateSynonym',
+        '/delete_synonym' => 'deleteSynonym',
+        '/add_answer' => 'setAnswer',
         '/set_word' => 'setWord',
         '/set_synonyms' => 'setSynonyms',
         MessageTypeEnum::OTHER => 'other',
@@ -42,15 +53,39 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         return parent::other();
     }
 
+    protected function cancel(): bool
+    {
+        $this->resetUserState();
+        return true;
+    }
+
     protected function getHelp(): bool
     {
-        $this->bot->telegram->sendMessage([
-            'chat_id' => $this->update->message->chat->id,
-            'text' => "введите
-             /set_setting начать настройку \n
+        $inline_keyboard = [
+            [
+                [
+                    'text' => 'Показать настройки',
+                    'callback_data' => json_encode([
+                        'method' => '/get_setting',
+                        'id' => 'null',
+                        'value' => 'null',
+                    ]),
+                ],
+                [
+                    'text' => 'Изменить настройки',
+                    'callback_data' => json_encode([
+                        'method' => '/add_answer',
+                        'id' => 'null',
+                        'value' => 'null',
+                    ]),
+//                    'callback_data' => '/add_answer',
+                ],
+            ],
+        ];
+        $this->reply("введите
+             /add_answer начать настройку \n
              /get_setting - показать настройку \n
-             "
-        ]);
+             ", $inline_keyboard);
 
         return true;
     }
@@ -58,7 +93,18 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     public function getSetting(): bool
     {
         $text = '';
+        $inline_keyboard = [];
         foreach ($this->bot->hints as $hint) {
+            $inline_keyboard[] = [
+                [
+                    'text' => $hint->text,
+                    'callback_data' => json_encode([
+                        'method' => '/get_hint',
+                        'id' => $hint->id,
+                        'value' => $hint->text,
+                    ])
+                ]
+            ];
             $text .= "\n Ответ: {$hint->text}";
             foreach ($hint->tags as $tag) {
                 $synonyms = implode(', ', $tag->synonyms->pluck('name')->toArray());
@@ -69,12 +115,292 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
         if (empty($text)) $text = "вы пока не настроили бот";
 
-        $this->bot->telegram->sendMessage([
-            'chat_id' => $this->update->message->chat->id,
-            'text' => $text
-        ]);
+        $this->reply($text);
 
         return true;
+    }
+
+    public function getHint(?Hint $hint = null): bool
+    {
+        $updateService = new TelegramUpdateService($this->update);
+        if (is_null($hint)) {
+            /** @var Hint $hint */
+            $hint = $this->bot->hints()->where('id', $updateService->getCallbackData()->id)->first();
+        }
+
+        if (is_null($hint)) {
+            $this->reply('Ответ (hint) не найден');
+        }
+
+        $text = '';
+        $inline_keyboard = [
+            [
+                [
+                    'text' => 'Изменить',
+                    'callback_data' => json_encode([
+                        'method' => '/update_hint',
+                        'id' => $hint->id,
+                        'value' => $hint->text,
+                    ]),
+                ],
+                [
+                    'text' => 'Удалить',
+                    'callback_data' => json_encode([
+                        'method' => '/delete_hint',
+                        'id' => $hint->id,
+                        'value' => $hint->text,
+                    ]),
+                ],
+            ]
+        ];
+
+        foreach ($hint->tags as $tag) {
+            $inline_keyboard[] = [
+                [
+                    'text' => $tag->name,
+                    'callback_data' => json_encode([
+                        'method' => '/get_tag',
+                        'id' => $tag->id,
+                        'value' => $tag->name,
+                    ]),
+                ]
+            ];
+            $synonyms = implode(', ', $tag->synonyms->pluck('name')->toArray());
+            $text .= "\n Ключевое слово: {$tag->name} ({$synonyms})";
+        }
+
+        $this->reply($text, $inline_keyboard);
+
+        return true;
+    }
+
+    public function updateHint(): bool
+    {
+        if ($this->hasUserState()) {
+            /** @var Hint $hint */
+            $hint = \Cache::get($this->getUserStatePath(true));
+            $hint->text = $this->update->message->text;
+            $isSave = $hint->save();
+
+            if ($isSave) {
+                $this->reply("
+                Ответ успешно сохранен! \n
+                ");
+
+                $this->getHint($hint);
+            }
+
+            return $isSave;
+        } else {
+            $this->reply("введите ответ, который вы хотите отдавать!");
+
+            $hint = Hint::query()
+                ->where('id', (new TelegramUpdateService($this->update))->getCallbackData()->id);
+            $this->setUserState('/update_hint', $hint);
+
+            return true;
+        }
+    }
+
+    public function deleteHint()
+    {
+        $updateService = new TelegramUpdateService($this->update);
+        /** @var Hint $hint */
+        $hint = $this->bot->hints()->where('id', $updateService->getCallbackData()->id)->first();
+
+        $hint->delete();
+
+        $this->reply('Успешно удалено');
+        $this->getSetting();
+    }
+
+    public function getTag(?Tag $tag): bool
+    {
+        $updateService = new TelegramUpdateService($this->update);
+
+        if (is_null($tag)) {
+            /** @var Tag $tag */
+            $tag = Tag::query()
+                ->where('id', $updateService->getCallbackData()['id'])
+                ->first();
+        }
+
+        /** @var Hint $hint */
+        $hint = $tag->hints()->ofBot($this->bot->id)->first();
+
+        if (is_null($tag)) {
+            $this->reply('Ключевое слово (tag) не найдено');
+        }
+
+        $synonyms = implode(', ', $tag->synonyms->pluck('name')->toArray());
+        $text = "\n Ключевое слово: {$tag->name} ({$synonyms})";
+        $inline_keyboard = [
+            [
+                [
+                    'text' => 'Изменить',
+                    'callback_data' => json_encode([
+                        'method' => '/update_tag',
+                        'id' => $tag->id,
+                        'value' => $tag->name,
+                    ]),
+                ],
+                [
+                    'text' => 'Удалить',
+                    'callback_data' => json_encode([
+                        'method' => '/delete_tag',
+                        'id' => $tag->id,
+                        'value' => $tag->name,
+                    ]),
+                ],
+                [
+                    'text' => 'Назад',
+                    'callback_data' => json_encode([
+                        'method' => '/get_hint',
+                        'id' => $hint->id,
+                        'value' => $hint->text,
+                    ]),
+                ],
+            ]
+        ];
+
+        foreach ($tag->synonyms as $synonym) {
+            $inline_keyboard[] = [
+                [
+                    'text' => $synonym->name,
+                    'callback_data' => json_encode([
+                        'method' => '/get_synonym',
+                        'id' => $synonym->id,
+                        'value' => $synonym->name,
+                    ]),
+                ]
+            ];
+        }
+
+        $this->reply($text, $inline_keyboard);
+
+        return true;
+    }
+
+    public function updateTag(): bool
+    {
+        if ($this->hasUserState()) {
+            /** @var Tag $tag */
+            $tag = \Cache::get($this->getUserStatePath(true));
+            $tag->name = $this->update->message->text;
+            $isSave = $tag->save();
+
+            if ($isSave) {
+                $this->reply("
+                Ключевое слово успешно сохранено! \n
+                ");
+
+                $this->resetUserState();
+                $this->getTag($tag);
+            }
+
+            return $isSave;
+        } else {
+            $this->reply("Введите ключевое слово, по которому будет отдаваться ответ!");
+
+            $tag = Tag::query()
+                ->where('id', (new TelegramUpdateService($this->update))->getCallbackData()->id);
+            $this->setUserState('/update_tag', $tag);
+
+            return true;
+        }
+    }
+
+    public function deleteTag()
+    {
+        $updateService = new TelegramUpdateService($this->update);
+        /** @var tag $tag */
+        $tag = Tag::query()
+            ->where('id', $updateService->getCallbackData()['id'])
+            ->ofBot($this->bot->id)
+            ->first();
+        /** @var Hint $hint */
+        $hint = $tag->hints()->ofBot($this->bot->id)->first();
+
+        $tag->delete();
+
+        $this->reply('Успешно удалено');
+        $this->getHint($hint);
+    }
+
+    public function getSynonym(): bool
+    {
+        $updateService = new TelegramUpdateService($this->update);
+        /** @var TagSynonym $synonym */
+        $synonym = TagSynonym::query()
+            ->where('id', $updateService->getCallbackData()['id'])
+            ->ofBot($this->bot->id)
+            ->first();
+
+        if (is_null($synonym)) {
+            $this->reply('слово (synonym) не найдено');
+        }
+
+        $text = $synonym->name;
+        $inline_keyboard = [
+            [
+                [
+                    'text' => 'Изменить',
+                    'callback_data' => json_encode([
+                        'method' => '/update_synonym',
+                        'id' => $synonym->id,
+                        'value' => $synonym->name,
+                    ]),
+                ],
+                [
+                    'text' => 'Удалить',
+                    'callback_data' => json_encode([
+                        'method' => '/delete_synonym',
+                        'id' => $synonym->id,
+                        'value' => $synonym->name,
+                    ]),
+                ],
+                [
+                    'text' => 'Назад',
+                    'callback_data' => json_encode([
+                        'method' => '/get_tag',
+                        'id' => $synonym->tag->id,
+                        'value' => $synonym->tag->name,
+                    ]),
+                ],
+            ]
+        ];
+
+        $this->reply($text, $inline_keyboard);
+
+        return true;
+    }
+
+    public function updateSynonym()
+    {
+        if ($this->hasUserState()) {
+            /** @var Tag $tag */
+            $tag = \Cache::get($this->getUserStatePath(true));
+            $tag->name = $this->update->message->text;
+            $isSave = $tag->save();
+
+            if ($isSave) {
+                $this->reply("
+                Ключевое слово успешно сохранено! \n
+                ");
+
+                $this->getTag($tag);
+            }
+
+            return $isSave;
+        } else {
+            $this->reply("Введите синоним слова!");
+
+            $tag = Tag::query()
+                ->where('id', (new TelegramUpdateService($this->update))->getCallbackData()->id);
+            $this->setUserState('/update_tag', $tag);
+
+            return true;
+        }
     }
 
     protected function setAnswer(): bool
@@ -100,7 +426,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         } else {
             $this->reply("введите ответ, который вы хотите отдавать!");
 
-            $this->setUserState('/set_setting');
+            $this->setUserState('/add_answer');
 
             return true;
         }
@@ -145,7 +471,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                 /** @var Tag $tag */
                 $tag = \Cache::get($this->getUserStatePath(true));
 
-                foreach(explode(',', $this->update->message->text) as $name) {
+                foreach (explode(',', $this->update->message->text) as $name) {
                     $synonym = new TagSynonym([
                         'name' => trim($name)
                     ]);

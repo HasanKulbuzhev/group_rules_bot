@@ -3,6 +3,7 @@
 namespace App\Models\Hint;
 
 use App\Models\Tag\Tag;
+use App\Models\TelegramBot;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,6 +25,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property-read Collection|Tag[] $tags
  * @property-read Collection|Tag[] $requireTags
  * @property-read Collection|Tag[] $notRequireTags
+ * @property-read Collection|TelegramBot[] $bots
+ * @property-read TelegramBot $bot
  * @property-read User $owner
  */
 class Hint extends Model
@@ -32,6 +35,16 @@ class Hint extends Model
         'title',
         'text',
     ];
+
+    public function bots(): BelongsToMany
+    {
+        return $this->belongsToMany(Hint::class, 'bot_hint_assignment', 'hint_id', 'bot_id');
+    }
+
+    public function bot()
+    {
+        return $this->bots()->first();
+    }
 
     public function tags(): BelongsToMany
     {
@@ -64,5 +77,11 @@ class Hint extends Model
         });
     }
 
+    public function scopeOfBot(Builder $builder, $id): Builder
+    {
+        return $builder->whereHas('bots', function (Builder $builder) use ($id) {
+            $builder->where('id', $id);
+        });
+    }
 
 }

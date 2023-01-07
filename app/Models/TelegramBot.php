@@ -70,4 +70,9 @@ class TelegramBot extends Model
     {
         return $this->token;
     }
+
+    public function isAdminTelegramId(int $telegramId): bool
+    {
+        return $telegramId === $this->bot->admin->telegram_id;
+    }
 }

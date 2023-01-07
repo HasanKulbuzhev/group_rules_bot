@@ -15,17 +15,28 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
     public function run(): bool
     {
         $updateService = (new TelegramUpdateService($this->update));
-        if (!in_array(MessageTypeEnum::TEXT, $updateService->getMessageInnerTypes())) {
+        if (
+            !in_array(MessageTypeEnum::TEXT, $updateService->getMessageInnerTypes()) &&
+            !in_array(MessageTypeEnum::CALLBACK_QUERY, $updateService->getMessageInnerTypes())
+        ) {
             return true;
         }
 
-        if ($this->update->message->from->id !== $this->bot->admin->telegram_id) {
+        if ($this->bot->isAdminTelegramId($updateService->getFromId())) {
             return $this->sendErrorNotAdmin();
         }
 
-        if (in_array(MessageTypeEnum::COMMAND, $updateService->getMessageInnerTypes())) {
+        if (
+        in_array(MessageTypeEnum::CALLBACK_QUERY, $updateService->getMessageInnerTypes())
+        ) {
+            $method = Arr::get($this->rules, $updateService->getCallbackData()->method, MessageTypeEnum::OTHER);
+        }
+
+        if (
+        in_array(MessageTypeEnum::COMMAND, $updateService->getMessageInnerTypes())
+        ) {
             $this->resetUserState();
-            $method = Arr::get($this->rules, $this->update->message->text, MessageTypeEnum::OTHER);
+            $method = Arr::get($this->rules, $updateService->data()->message->text, MessageTypeEnum::OTHER);
         }
 
         if ($this->hasUserState() && !isset($method)) {
@@ -55,17 +66,40 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
         return true;
     }
 
-    protected function reply(string $message): void
+    /**
+     * @param string $message
+     * @param array|null $inline_keyboard
+     * @throws \Telegram\Bot\Exceptions\TelegramSDKException
+     *
+     * <code>
+     * $inline_keyboard = [
+     * [
+     * [
+     *       'text'                     => '',  // string - Текст кнопки
+     *       'callback_data'            => '',  // string     - Название метода, который будет выполняться
+     * ]
+     * ]
+     * ]
+     * </code>
+     */
+    protected function reply(string $message, ?array $inline_keyboard = null): void
     {
-        $this->bot->telegram->sendMessage([
-            'chat_id' => $this->update->message->chat->id,
-            'text' => $message
+        $reply_markup = empty($inline_keyboard) ? null : json_encode([
+            'inline_keyboard' => $inline_keyboard
         ]);
+        foreach (mb_str_split($message, 3000) as $text) {
+            $this->bot->telegram->sendMessage([
+                'chat_id' => $this->update->message->chat->id,
+                'text' => $text,
+                'reply_markup' => $reply_markup,
+
+            ]);
+        }
     }
 
     protected function getUserStatePath(bool $value = false): string
     {
-        return CacheTypeEnum::PRIVATE_RULE_TYPE . ".{$this->bot->telegram_id}.{$this->update->message->from->id}." . (int) $value;
+        return CacheTypeEnum::PRIVATE_RULE_TYPE . ".{$this->bot->telegram_id}.{$this->update->message->from->id}." . (int)$value;
     }
 
     protected function setUserState(string $string, $value = null)
@@ -85,6 +119,6 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
     {
         Cache::delete($this->getUserStatePath());
         if ($this->hasUserState())
-        Cache::delete($this->getUserStatePath(true));
+            Cache::delete($this->getUserStatePath(true));
     }
 }

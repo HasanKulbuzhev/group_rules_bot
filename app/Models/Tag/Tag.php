@@ -2,11 +2,13 @@
 
 namespace App\Models\Tag;
 
+use App\Models\Hint\Hint;
 use App\Models\TagSynonym\TagSynonym;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -18,12 +20,22 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property Carbon $updated_at
  *
  * @property-read Collection|TagSynonym[] $synonyms
+ * @property-read Collection|Hint[] $hints
  */
 class Tag extends Model
 {
     protected $fillable = [
         'name'
     ];
+
+    public function hints(): BelongsToMany
+    {
+        return $this->belongsToMany(Hint::class,
+            'hint_tag_assignment',
+            'tag_id',
+            'hint_id')
+            ->withPivot(['require']);
+    }
 
     public function synonyms(): HasMany
     {
@@ -43,5 +55,19 @@ class Tag extends Model
         });
     }
 
+    public function scopeOfBot(Builder $builder, $id): Builder
+    {
+        return $builder->whereHas('hints', function (Builder $builder) use ($id) {
+           $builder->ofBot('bots', function (Builder $builder) use ($id) {
+               $builder->where('id', $id);
+           });
+        });
+    }
 
+    public function scopeOfHint(Builder $builder, $id): Builder
+    {
+        return $builder->whereHas('hints', function (Builder $builder) use ($id) {
+            $builder->where('id', $id);
+        });
+    }
 }

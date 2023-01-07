@@ -4,6 +4,7 @@ namespace App\Services\Telegram\Update;
 
 use App\Enums\Telegram\ChatTypeEnum;
 use App\Enums\Telegram\MessageTypeEnum;
+use Telegram\Bot\Objects\CallbackQuery;
 use Telegram\Bot\Objects\Update;
 
 class TelegramUpdateService
@@ -13,6 +14,28 @@ class TelegramUpdateService
     public function __construct(Update $update)
     {
         $this->update = $update;
+    }
+
+    /**
+     * @return Update | CallbackQuery
+     */
+    public function data()
+    {
+        if (is_null($this->update->callbackQuery)) {
+            return $this->update;
+        } else {
+            return $this->update->callbackQuery;
+        }
+    }
+
+    public function getCallbackData(): object
+    {
+        return json_decode($this->data()->data);
+    }
+
+    public function getFromId(): int
+    {
+        return $this->data()->message->from->id;
     }
 
     public function getChatId(): int
@@ -32,12 +55,12 @@ class TelegramUpdateService
 
     private function getChatIdToDefault(): int
     {
-        return $this->update->message->chat->id ?? $this->update->callbackQuery->message->chat->id;
+        return $this->data()->message->chat->id;
     }
 
     public function getChatType(): string
     {
-        return $this->update->message->chat->type ?? $this->update->callbackQuery->message->chat->type;
+        return $this->data()->message->chat->type;
     }
 
     public function getMessageType(): string
