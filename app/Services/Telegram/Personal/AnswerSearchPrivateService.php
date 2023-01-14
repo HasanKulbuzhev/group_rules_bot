@@ -18,7 +18,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         '/start' => 'getHelp',
         '/help' => 'getHelp',
         '/cancel' => 'cancel',
-        '/get_setting' => 'getSetting',
+        '/get_setting' => 'getHint',
         '/get_hint' => 'getHint',
         '/update_hint' => 'updateHint',
         '/delete_hint' => 'deleteHint',
