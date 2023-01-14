@@ -78,7 +78,6 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                         'id' => 'null',
                         'value' => 'null',
                     ]),
-//                    'callback_data' => '/add_answer',
                 ],
             ],
         ];
@@ -327,11 +326,11 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         $this->getHint($hint);
     }
 
-    public function getSynonym(): bool
+    public function getSynonym(?TagSynonym $synonym = null): bool
     {
         $updateService = new TelegramUpdateService($this->update);
         /** @var TagSynonym $synonym */
-        $synonym = TagSynonym::query()
+        $synonym = $synonym ?? TagSynonym::query()
             ->where('id', $updateService->getCallbackData()['id'])
             ->ofBot($this->bot->id)
             ->first();
@@ -375,32 +374,46 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         return true;
     }
 
-    public function updateSynonym()
+    public function updateSynonym(): bool
     {
         if ($this->hasUserState()) {
-            /** @var Tag $tag */
-            $tag = \Cache::get($this->getUserStatePath(true));
-            $tag->name = $this->update->message->text;
-            $isSave = $tag->save();
+            /** @var TagSynonym $synonym */
+            $synonym = \Cache::get($this->getUserStatePath(true));
+            $synonym->name = $this->update->message->text;
+            $isSave = $synonym->save();
 
             if ($isSave) {
                 $this->reply("
-                Ключевое слово успешно сохранено! \n
+                Слово успешно сохранено! \n
                 ");
 
-                $this->getTag($tag);
+                $this->getSynonym($synonym);
             }
 
             return $isSave;
         } else {
             $this->reply("Введите синоним слова!");
 
-            $tag = Tag::query()
+            $synonym = TagSynonym::query()
                 ->where('id', (new TelegramUpdateService($this->update))->getCallbackData()->id);
-            $this->setUserState('/update_tag', $tag);
+            $this->setUserState('/update_synonym', $synonym);
 
             return true;
         }
+    }
+
+    public function deleteSynonym(): bool
+    {
+        /** @var TagSynonym $synonym */
+        $synonym = TagSynonym::query()
+            ->where('id', (new TelegramUpdateService($this->update))->getCallbackData()->id);
+        $tag = $synonym->tag;
+
+        $isDelete = $synonym->delete();
+
+        $this->getTag($tag);
+
+        return $isDelete;
     }
 
     protected function setAnswer(): bool
