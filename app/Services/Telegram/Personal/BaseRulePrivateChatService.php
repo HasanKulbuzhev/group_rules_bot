@@ -6,7 +6,6 @@ use App\Enums\Cache\CacheTypeEnum;
 use App\Enums\Telegram\MessageTypeEnum;
 use App\Interfaces\Base\BaseService;
 use App\Services\Base\Telegram\BaseRuleChatService;
-use App\Services\Telegram\Update\TelegramUpdateService;
 use Arr;
 use Cache;
 
@@ -14,29 +13,28 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
 {
     public function run(): bool
     {
-        $updateService = (new TelegramUpdateService($this->update));
         if (
-            !in_array(MessageTypeEnum::TEXT, $updateService->getMessageInnerTypes()) &&
-            !in_array(MessageTypeEnum::CALLBACK_QUERY, $updateService->getMessageInnerTypes())
+            !in_array(MessageTypeEnum::TEXT, $this->updateService->getMessageInnerTypes()) &&
+            !in_array(MessageTypeEnum::CALLBACK_QUERY, $this->updateService->getMessageInnerTypes())
         ) {
             return true;
         }
 
-        if (!$this->bot->isAdminTelegramId($updateService->getFromId())) {
+        if (!$this->bot->isAdminTelegramId($this->updateService->getFromId())) {
             return $this->sendErrorNotAdmin();
         }
 
         if (
-        in_array(MessageTypeEnum::CALLBACK_QUERY, $updateService->getMessageInnerTypes())
+        in_array(MessageTypeEnum::CALLBACK_QUERY, $this->updateService->getMessageInnerTypes())
         ) {
-            $method = Arr::get($this->rules, $updateService->getCallbackData()->method, MessageTypeEnum::OTHER);
+            $method = Arr::get($this->rules, $this->updateService->getCallbackData()->method, MessageTypeEnum::OTHER);
         }
 
         if (
-        in_array(MessageTypeEnum::COMMAND, $updateService->getMessageInnerTypes())
+        in_array(MessageTypeEnum::COMMAND, $this->updateService->getMessageInnerTypes())
         ) {
             $this->resetUserState();
-            $method = Arr::get($this->rules, $updateService->data()->message->text, MessageTypeEnum::OTHER);
+            $method = Arr::get($this->rules, $this->updateService->data()->message->text, MessageTypeEnum::OTHER);
         }
 
         if ($this->hasUserState() && !isset($method)) {
@@ -54,7 +52,7 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
     protected function sendErrorNotAdmin(): bool
     {
         $this->bot->telegram->sendMessage([
-            'chat_id' => $this->update->message->chat->id,
+            'chat_id' => $this->updateService->data()->message->chat->id,
             'text' => "Вы не являетесь админом бота!"
         ]);
 
@@ -89,7 +87,7 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
         ]);
         foreach (mb_str_split($message, 3000) as $text) {
             $this->bot->telegram->sendMessage([
-                'chat_id' => $this->update->message->chat->id,
+                'chat_id' => $this->updateService->data()->message->chat->id,
                 'text' => $text,
                 'reply_markup' => $reply_markup,
 
@@ -99,7 +97,7 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
 
     protected function getUserStatePath(bool $value = false): string
     {
-        return CacheTypeEnum::PRIVATE_RULE_TYPE . ".{$this->bot->telegram_id}.{$this->update->message->from->id}." . (int)$value;
+        return CacheTypeEnum::PRIVATE_RULE_TYPE . ".{$this->bot->telegram_id}.{$this->updateService->data()->message->from->id}." . (int)$value;
     }
 
     protected function setUserState(string $string, $value = null)
