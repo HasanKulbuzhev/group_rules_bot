@@ -22,7 +22,7 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
             return true;
         }
 
-        if ($this->bot->isAdminTelegramId($updateService->getFromId())) {
+        if (!$this->bot->isAdminTelegramId($updateService->getFromId())) {
             return $this->sendErrorNotAdmin();
         }
 

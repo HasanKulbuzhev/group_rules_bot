@@ -71,8 +71,8 @@ class TelegramBot extends Model
         return $this->token;
     }
 
-    public function isAdminTelegramId(int $telegramId): bool
+    public function isAdminTelegramId(int $id): bool
     {
-        return $telegramId === $this->admin->telegram_id;
+        return $id === $this->admin->telegram_id;
     }
 }
