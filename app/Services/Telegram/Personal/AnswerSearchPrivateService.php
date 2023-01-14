@@ -113,7 +113,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                     'callback_data' => json_encode([
                         'method' => '/get_hint',
                         'id' => $hint->id,
-                        'value' => $hint->text,
+                        'value' => $hint->id,
                     ])
                 ]
             ];
@@ -152,7 +152,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                     'callback_data' => json_encode([
                         'method' => '/update_hint',
                         'id' => $hint->id,
-                        'value' => $hint->text,
+                        'value' => $hint->id,
                     ]),
                 ],
                 [
@@ -160,7 +160,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                     'callback_data' => json_encode([
                         'method' => '/delete_hint',
                         'id' => $hint->id,
-                        'value' => $hint->text,
+                        'value' => $hint->id,
                     ]),
                 ],
             ]
@@ -173,7 +173,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                     'callback_data' => json_encode([
                         'method' => '/get_tag',
                         'id' => $tag->id,
-                        'value' => $tag->name,
+                        'value' => $tag->id,
                     ]),
                 ]
             ];
@@ -253,7 +253,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                     'callback_data' => json_encode([
                         'method' => '/update_tag',
                         'id' => $tag->id,
-                        'value' => $tag->name,
+                        'value' => $tag->id,
                     ]),
                 ],
                 [
@@ -261,7 +261,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                     'callback_data' => json_encode([
                         'method' => '/delete_tag',
                         'id' => $tag->id,
-                        'value' => $tag->name,
+                        'value' => $tag->id,
                     ]),
                 ],
                 [
@@ -269,7 +269,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                     'callback_data' => json_encode([
                         'method' => '/get_hint',
                         'id' => $hint->id,
-                        'value' => $hint->text,
+                        'value' => $hint->id,
                     ]),
                 ],
             ]
@@ -282,7 +282,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                     'callback_data' => json_encode([
                         'method' => '/get_synonym',
                         'id' => $synonym->id,
-                        'value' => $synonym->name,
+                        'value' => $synonym->id,
                     ]),
                 ]
             ];
@@ -360,7 +360,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                     'callback_data' => json_encode([
                         'method' => '/update_synonym',
                         'id' => $synonym->id,
-                        'value' => $synonym->name,
+                        'value' => $synonym->id,
                     ]),
                 ],
                 [
@@ -368,7 +368,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                     'callback_data' => json_encode([
                         'method' => '/delete_synonym',
                         'id' => $synonym->id,
-                        'value' => $synonym->name,
+                        'value' => $synonym->id,
                     ]),
                 ],
                 [
@@ -376,7 +376,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                     'callback_data' => json_encode([
                         'method' => '/get_tag',
                         'id' => $synonym->tag->id,
-                        'value' => $synonym->tag->name,
+                        'value' => $synonym->tag->id,
                     ]),
                 ],
             ]
