@@ -10,6 +10,7 @@ use App\Models\Hint\Hint;
 use App\Models\Tag\Tag;
 use App\Models\TagSynonym\TagSynonym;
 use App\Services\Telegram\Update\TelegramUpdateService;
+use Exception;
 
 class AnswerSearchPrivateService extends BaseRulePrivateChatService implements BaseService
 {
@@ -35,7 +36,19 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
     public function run(): bool
     {
-        return parent::run();
+        try {
+            return parent::run();
+        } catch (Exception $exception) {
+            $text = $exception->getMessage();
+            $allErrorText = json_encode($exception->getTrace());
+
+            throw new Exception("
+                С ботом @{$this->bot->username} произошло что-то не так. \n
+                $text. \n
+                All error text : \n
+                $allErrorText
+                ");
+        }
     }
 
     public function other(): bool
