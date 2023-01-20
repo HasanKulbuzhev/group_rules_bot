@@ -38,7 +38,7 @@ class Hint extends Model
 
     public function bots(): BelongsToMany
     {
-        return $this->belongsToMany(Hint::class, 'bot_hint_assignment', 'bot_id', 'hint_id');
+        return $this->belongsToMany(Hint::class, 'bot_hint_assignment', 'hint_id', 'bot_id');
     }
 
     public function bot()
