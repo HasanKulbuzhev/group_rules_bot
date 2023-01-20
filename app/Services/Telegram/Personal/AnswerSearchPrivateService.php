@@ -137,7 +137,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         $updateService = new TelegramUpdateService($this->update);
         if (is_null($hint)) {
             /** @var Hint $hint */
-            $hint = $this->bot->hints()->where('id', $updateService->getCallbackData()->id)->first();
+            $hint = $this->bot->hints()->find($updateService->getCallbackData()->id);
         }
 
         if (is_null($hint)) {
@@ -233,7 +233,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         if (is_null($tag)) {
             /** @var Tag $tag */
             $tag = Tag::query()
-                ->where('id', $updateService->getCallbackData()['id'])
+                ->find($this->updateService->getCallbackData()->id)
                 ->first();
         }
 
@@ -242,6 +242,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
         if (is_null($tag)) {
             $this->reply('Ключевое слово (tag) не найдено');
+            return true;
         }
 
         $synonyms = implode(', ', $tag->synonyms->pluck('name')->toArray());
