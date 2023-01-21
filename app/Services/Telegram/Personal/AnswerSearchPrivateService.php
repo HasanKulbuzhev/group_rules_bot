@@ -207,7 +207,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             $this->reply("введите ответ, который вы хотите отдавать!");
 
             $hint = Hint::query()
-                ->where('id', (new TelegramUpdateService($this->update))->getCallbackData()->id);
+                ->find($this->updateService->getCallbackData()->id);
             $this->setUserState('/update_hint', $hint);
 
             return true;
@@ -316,7 +316,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             $this->reply("Введите ключевое слово, по которому будет отдаваться ответ!");
 
             $tag = Tag::query()
-                ->where('id', (new TelegramUpdateService($this->update))->getCallbackData()->id);
+                ->find($this->updateService->getCallbackData()->id);
             $this->setUserState('/update_tag', $tag);
 
             return true;
@@ -409,7 +409,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             $this->reply("Введите синоним слова!");
 
             $synonym = TagSynonym::query()
-                ->where('id', (new TelegramUpdateService($this->update))->getCallbackData()->id);
+                ->find($this->updateService->getCallbackData()->id);
             $this->setUserState('/update_synonym', $synonym);
 
             return true;
