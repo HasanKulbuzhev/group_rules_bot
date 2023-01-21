@@ -11,6 +11,7 @@ use App\Models\Tag\Tag;
 use App\Models\TagSynonym\TagSynonym;
 use App\Services\Telegram\Update\TelegramUpdateService;
 use Exception;
+use Illuminate\Support\Facades\Cache;
 
 class AnswerSearchPrivateService extends BaseRulePrivateChatService implements BaseService
 {
@@ -190,7 +191,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     {
         if ($this->hasUserState()) {
             /** @var Hint $hint */
-            $hint = \Cache::get($this->getUserStatePath(true));
+            $hint = Cache::get($this->getUserStatePath(true));
             $hint->text = $this->update->message->text;
             $isSave = $hint->save();
 
@@ -298,7 +299,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     {
         if ($this->hasUserState()) {
             /** @var Tag $tag */
-            $tag = \Cache::get($this->getUserStatePath(true));
+            $tag = Cache::get($this->getUserStatePath(true));
             $tag->name = $this->update->message->text;
             $isSave = $tag->save();
 
@@ -392,7 +393,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     {
         if ($this->hasUserState()) {
             /** @var TagSynonym $synonym */
-            $synonym = \Cache::get($this->getUserStatePath(true));
+            $synonym = Cache::get($this->getUserStatePath(true));
             $synonym->name = $this->update->message->text;
             $isSave = $synonym->save();
 
@@ -463,7 +464,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     {
         if ($this->hasUserState()) {
             /** @var Hint $hint */
-            $hint = \Cache::get($this->getUserStatePath(true));
+            $hint = Cache::get($this->getUserStatePath(true));
             $tag = new Tag([
                 'name' => $this->update->message->text
             ]);
@@ -496,7 +497,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
             if ($this->update->message->text !== '/skip') {
                 /** @var Tag $tag */
-                $tag = \Cache::get($this->getUserStatePath(true));
+                $tag = Cache::get($this->getUserStatePath(true));
 
                 foreach (explode(',', $this->update->message->text) as $name) {
                     $synonym = new TagSynonym([
