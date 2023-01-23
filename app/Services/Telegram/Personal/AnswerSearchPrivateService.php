@@ -11,7 +11,7 @@ use App\Models\Tag\Tag;
 use App\Models\TagSynonym\TagSynonym;
 use App\Services\Telegram\Update\TelegramUpdateService;
 use Exception;
-use Illuminate\Support\Facades\Cache;
+use Cache;
 
 class AnswerSearchPrivateService extends BaseRulePrivateChatService implements BaseService
 {
@@ -55,11 +55,11 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     public function other(): bool
     {
         /** @var Hint $hint */
-        $hint = $this->bot->hints()->ofTagName($this->update->message->text)->first();
+        $hint = $this->bot->hints()->ofTagName($this->updateService->data()->message->text)->first();
         if ($hint) {
             $this->bot->telegram->sendMessage([
-                'chat_id' => $this->update->message->chat->id,
-                'reply_to_message_id' => $this->update->message->messageId,
+                'chat_id' => $this->updateService->data()->message->chat->id,
+                'reply_to_message_id' => $this->updateService->data()->message->messageId,
                 'text' => $hint->text,
             ]);
         }
@@ -192,7 +192,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         if ($this->hasUserState()) {
             /** @var Hint $hint */
             $hint = Cache::get($this->getUserStatePath(true));
-            $hint->text = $this->update->message->text;
+            $hint->text = $this->updateService->data()->message->text;
             $isSave = $hint->save();
 
             if ($isSave) {
@@ -300,7 +300,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         if ($this->hasUserState()) {
             /** @var Tag $tag */
             $tag = Cache::get($this->getUserStatePath(true));
-            $tag->name = $this->update->message->text;
+            $tag->name = $this->updateService->data()->message->text;
             $isSave = $tag->save();
 
             if ($isSave) {
@@ -394,7 +394,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         if ($this->hasUserState()) {
             /** @var TagSynonym $synonym */
             $synonym = Cache::get($this->getUserStatePath(true));
-            $synonym->name = $this->update->message->text;
+            $synonym->name = $this->updateService->data()->message->text;
             $isSave = $synonym->save();
 
             if ($isSave) {
@@ -435,7 +435,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     {
         if ($this->hasUserState()) {
             $hint = new Hint([
-                'text' => $this->update->message->text
+                'text' => $this->updateService->data()->message->text
             ]);
             $hint->owner_id = $this->bot->admin->id;
             $isSave = $hint->save();
@@ -466,7 +466,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             /** @var Hint $hint */
             $hint = Cache::get($this->getUserStatePath(true));
             $tag = new Tag([
-                'name' => $this->update->message->text
+                'name' => $this->updateService->data()->message->text
             ]);
             $isSave = $tag->save();
             $isSave = $isSave && $hint->tags()->save($tag);
@@ -495,11 +495,11 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         if ($this->hasUserState()) {
             $isSave = true;
 
-            if ($this->update->message->text !== '/skip') {
+            if ($this->updateService->data()->message->text !== '/skip') {
                 /** @var Tag $tag */
                 $tag = Cache::get($this->getUserStatePath(true));
 
-                foreach (explode(',', $this->update->message->text) as $name) {
+                foreach (explode(',', $this->updateService->data()->message->text) as $name) {
                     $synonym = new TagSynonym([
                         'name' => trim($name)
                     ]);
