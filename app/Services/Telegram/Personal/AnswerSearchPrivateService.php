@@ -184,6 +184,8 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
         $this->reply($text, $inline_keyboard);
 
+        $this->resetUserState();
+
         return true;
     }
 
