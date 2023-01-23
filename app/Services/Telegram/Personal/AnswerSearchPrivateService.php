@@ -203,6 +203,10 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                 ");
 
                 $this->getHint($hint);
+            } else {
+                $this->reply("
+                Ответ не сохранён! \n
+                ");
             }
 
             return $isSave;
