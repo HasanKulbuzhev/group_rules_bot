@@ -19,6 +19,9 @@ class RuleBotService extends BaseRuleChatService implements BaseService
 
     public function run(): bool
     {
+        if ($this->updateService->data()->from->id === $this->bot->telegram_id) {
+            return true;
+        }
         $botType = $this->bot->type;
 
         return $this->runService($this->bot->type);

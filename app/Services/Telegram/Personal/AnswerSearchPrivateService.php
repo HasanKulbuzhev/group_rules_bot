@@ -191,7 +191,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
     public function updateHint(): bool
     {
-        if ($this->hasUserState()) {
+        if ($this->hasUserState(true)) {
             /** @var Hint $hint */
             $hint = Cache::get($this->getUserStatePath(true));
             $hint->text = $this->updateService->data()->message->text;
@@ -208,6 +208,8 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                 Ответ не сохранён! \n
                 ");
             }
+
+            $this->resetUserState();
 
             return $isSave;
         } else {
