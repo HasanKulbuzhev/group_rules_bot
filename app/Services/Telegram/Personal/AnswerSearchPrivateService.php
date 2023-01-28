@@ -193,7 +193,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     {
         if (
             $this->hasUserState(true) &&
-            $this->getUserstate() === '/update_hint'
+            $this->getUserState() === '/update_hint'
         ) {
             /** @var Hint $hint */
             $hint = Cache::get($this->getUserStatePath(true));
