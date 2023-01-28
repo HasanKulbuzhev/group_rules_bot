@@ -227,7 +227,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     {
         $updateService = new TelegramUpdateService($this->update);
         /** @var Hint $hint */
-        $hint = $this->bot->hints()->where('id', $updateService->getCallbackData()->id)->first();
+        $hint = $this->bot->hints()->fing($this->updateService->getCallbackData()->id)->first();
 
         $hint->delete();
 
@@ -337,7 +337,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         $updateService = new TelegramUpdateService($this->update);
         /** @var tag $tag */
         $tag = Tag::query()
-            ->where('id', $updateService->getCallbackData()['id'])
+            ->fing($this->updateService->getCallbackData()['id'])
             ->ofBot($this->bot->id)
             ->first();
         /** @var Hint $hint */
@@ -354,7 +354,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         $updateService = new TelegramUpdateService($this->update);
         /** @var TagSynonym $synonym */
         $synonym = $synonym ?? TagSynonym::query()
-            ->where('id', $updateService->getCallbackData()['id'])
+            ->fing($this->updateService->getCallbackData()->id)
             ->ofBot($this->bot->id)
             ->first();
 
