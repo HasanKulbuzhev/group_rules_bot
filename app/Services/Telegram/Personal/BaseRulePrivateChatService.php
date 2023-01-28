@@ -100,6 +100,11 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
         return CacheTypeEnum::PRIVATE_RULE_TYPE . ".{$this->bot->telegram_id}.{$this->updateService->data()->message->from->id}." . (int)$value;
     }
 
+    protected function getUserState(bool $value = false): array
+    {
+        return Cache::get($this->getUserStatePath($value));
+    }
+
     protected function setUserState(string $string, $value = null)
     {
         \Cache::put($this->getUserStatePath(), $string);
