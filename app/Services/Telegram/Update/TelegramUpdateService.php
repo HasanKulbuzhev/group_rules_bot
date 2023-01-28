@@ -35,7 +35,9 @@ class TelegramUpdateService
 
     public function getFromId(): int
     {
-        return $this->data()->message->from->id;
+        return is_null($this->update->callbackQuery) ?
+            $this->data()->from->id :
+            $this->data()->message->from->id;
     }
 
     public function getChatId(): int
