@@ -130,7 +130,7 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
     protected function resetUserState()
     {
         Cache::delete($this->getUserStatePath());
-        if ($this->hasUserState())
+        if ($this->hasUserState(true))
             Cache::delete($this->getUserStatePath(true));
     }
 }
