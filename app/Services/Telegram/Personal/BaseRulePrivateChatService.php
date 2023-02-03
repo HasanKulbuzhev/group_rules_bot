@@ -20,6 +20,8 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
             return true;
         }
 
+        $method = null;
+
         if (!$this->bot->isAdminTelegramId($this->updateService->getChatId())) {
             return $this->sendErrorNotAdmin();
         }
@@ -31,18 +33,19 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
         }
 
         if (
-        in_array(MessageTypeEnum::COMMAND, $this->updateService->getMessageInnerTypes())
+        in_array(MessageTypeEnum::COMMAND, $this->updateService->getMessageInnerTypes()) &&
+        is_null($method)
         ) {
             $this->resetUserState();
-            $method = Arr::get($this->rules, $this->updateService->data()->message->text, MessageTypeEnum::OTHER);
+            $method = Arr::get($this->rules, $this->updateService->data()->message->text);
         }
 
-        if ($this->hasUserState() && !isset($method)) {
-            $rule = Cache::get($this->getUserStatePath());
+        if ($this->hasUserState() && is_null($method)) {
+            $rule   = Cache::get($this->getUserStatePath());
             $method = Arr::get($this->rules, $rule, MessageTypeEnum::OTHER);
         }
 
-        if (!isset($method)) {
+        if (is_null($method)) {
             $method = MessageTypeEnum::OTHER;
         }
 
@@ -51,10 +54,11 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
 
     protected function sendErrorNotAdmin(): bool
     {
-        $this->bot->telegram->sendMessage([
-            'chat_id' => $this->updateService->data()->message->chat->id,
-            'text' => "Вы не являетесь админом бота!"
-        ]);
+        $this->bot->telegram->sendMessage(
+            [
+                'chat_id' => $this->updateService->data()->message->chat->id,
+                'text'    => "Вы не являетесь админом бота!"
+            ]);
 
         return true;
     }
@@ -65,7 +69,7 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
     }
 
     /**
-     * @param string $message
+     * @param string     $message
      * @param array|null $inline_keyboard
      * @throws \Telegram\Bot\Exceptions\TelegramSDKException
      *
@@ -82,16 +86,18 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
      */
     protected function reply(string $message, ?array $inline_keyboard = null): void
     {
-        $reply_markup = empty($inline_keyboard) ? null : json_encode([
-            'inline_keyboard' => $inline_keyboard
-        ]);
-        foreach (mb_str_split($message, 3000) as $text) {
-            $this->bot->telegram->sendMessage([
-                'chat_id' => $this->updateService->data()->message->chat->id,
-                'text' => $text,
-                'reply_markup' => $reply_markup,
-
+        $reply_markup = empty($inline_keyboard) ? null : json_encode(
+            [
+                'inline_keyboard' => $inline_keyboard
             ]);
+        foreach (mb_str_split($message, 3000) as $text) {
+            $this->bot->telegram->sendMessage(
+                [
+                    'chat_id'      => $this->updateService->data()->message->chat->id,
+                    'text'         => $text,
+                    'reply_markup' => $reply_markup,
+
+                ]);
         }
     }
 
