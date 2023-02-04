@@ -26,11 +26,12 @@ class TelegramController extends Controller
         try {
             (new RuleBotService($bot, new Update($request->post())))->run();
         } catch (Throwable  $e) {
-            $bot->telegram->sendMessage([
+            $baseBot = TelegramBot::query()->ofBaseBot()->first();
+            $baseBot->telegram->sendMessage([
                 'chat_id' => config('telegram.bots.my_account.id'),
                 'text' => (string)$e->getMessage()
             ]);
-            throw $e;
+//            throw $e;
         }
 
         return 'ok';

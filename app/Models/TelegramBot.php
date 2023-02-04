@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use App\Casts\TelegramBotCast;
+use App\Enums\Telegram\TelegramBotTypeEnum;
 use App\Models\Hint\Hint;
 use App\Services\Api\TelegramBotApi;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,24 +17,24 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 /**
  * Class TelegramBot
  * @package App
- * @property int $id
- * @property int $telegram_id
- * @property string $username
- * @property string $first_name
- * @property string $token
- * @property int $type
- * @property boolean $can_join_groups
- * @property boolean $can_read_all_group_messages
- * @property boolean $supports_inline_queries
- * @property int $telegram_user_id
- * @property Carbon $created_at
- * @property Carbon $updated_at
+ * @property int               $id
+ * @property int               $telegram_id
+ * @property string            $username
+ * @property string            $first_name
+ * @property string            $token
+ * @property int               $type
+ * @property boolean           $can_join_groups
+ * @property boolean           $can_read_all_group_messages
+ * @property boolean           $supports_inline_queries
+ * @property int               $telegram_user_id
+ * @property Carbon            $created_at
+ * @property Carbon            $updated_at
  *
- * @property TelegramBotApi $telegram
+ * @property TelegramBotApi    $telegram
  *
- * @property TelegramUser $admin
+ * @property TelegramUser      $admin
  * @property Collection|Hint[] $hints
- * @property RuleBotSetting $setting
+ * @property RuleBotSetting    $setting
  */
 class TelegramBot extends Model
 {
@@ -74,5 +76,12 @@ class TelegramBot extends Model
     public function isAdminTelegramId(int $id): bool
     {
         return $id === $this->admin->telegram_id;
+    }
+
+    public function scopeOfBaseBot(Builder $builder)
+    {
+        return $builder
+            ->where('token', config('telegram.bots.mybot.token'))
+            ->where('type', TelegramBotTypeEnum::BASE)->first();
     }
 }
