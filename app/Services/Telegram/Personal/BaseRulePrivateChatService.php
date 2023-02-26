@@ -29,7 +29,7 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
         if (
         in_array(MessageTypeEnum::CALLBACK_QUERY, $this->updateService->getMessageInnerTypes())
         ) {
-            $method = Arr::get($this->rules, $this->updateService->getCallbackData()->method, MessageTypeEnum::OTHER);
+            $method = Arr::get($this->rules, $this->updateService->getCallbackData()->method);
         }
 
         if (

@@ -217,6 +217,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         } else {
             $hint = Hint::query()
                 ->find($this->updateService->getCallbackData()->id);
+
             $this->setUserState('/update_hint', $hint);
 
             $this->reply("введите ответ, который вы хотите отдавать!");
