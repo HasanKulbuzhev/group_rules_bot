@@ -165,6 +165,14 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                         'value' => $hint->id,
                     ]),
                 ],
+                [
+                    'text' => 'Назад',
+                    'callback_data' => json_encode([
+                        'method' => '/get_setting',
+                        'id' => $hint->id,
+                        'value' => $hint->id,
+                    ]),
+                ],
             ]
         ];
 
