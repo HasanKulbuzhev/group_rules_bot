@@ -44,10 +44,6 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
             $method = Arr::get($this->rules, $rule);
         }
 
-        if (!is_null($method)) {
-            $this->resetUserState();
-        }
-
         if (is_null($method)) {
             $method = MessageTypeEnum::OTHER;
         }
