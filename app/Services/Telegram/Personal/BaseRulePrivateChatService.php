@@ -22,7 +22,7 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
 
         $method = null;
 
-        if (!$this->bot->isAdminTelegramId($this->updateService->getChatId())) {
+        if (!$this->bot->isAdminTelegramId($this->updateService->getFromId())) {
             return $this->sendErrorNotAdmin();
         }
 
@@ -102,7 +102,7 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
 
     protected function getUserStatePath(bool $value = false): string
     {
-        return CacheTypeEnum::PRIVATE_RULE_TYPE . ".{$this->bot->telegram_id}.{$this->updateService->data()->message->from->id}." . (int)$value;
+        return CacheTypeEnum::PRIVATE_RULE_TYPE . ".{$this->bot->telegram_id}.{$this->updateService->data()->message->chat->id}." . (int)$value;
     }
 
     protected function getUserState(bool $value = false)
