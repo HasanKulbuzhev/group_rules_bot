@@ -249,13 +249,10 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
     public function getTag(?Tag $tag): bool
     {
-        $updateService = new TelegramUpdateService($this->update);
-
         if (is_null($tag)) {
             /** @var Tag $tag */
             $tag = Tag::query()
-                ->find($this->updateService->getCallbackData()->id)
-                ->first();
+                ->find($this->updateService->getCallbackData()->id);
         }
 
         /** @var Hint $hint */
