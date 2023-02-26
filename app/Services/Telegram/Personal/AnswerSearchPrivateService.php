@@ -145,7 +145,8 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             $this->reply('Ответ (hint) не найден');
         }
 
-        $text = '';
+        $text = 'Ответ: ' . $hint->text;
+
         $inline_keyboard = [
             [
                 [
