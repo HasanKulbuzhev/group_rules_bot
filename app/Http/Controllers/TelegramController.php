@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Telegram\TelegramBotTypeEnum;
+use App\Models\Hint\Hint;
+use App\Models\Tag\Tag;
 use App\Services\Telegram\RuleBotService;
 use App\Models\TelegramBot;
 use Exception;
@@ -97,7 +99,25 @@ class TelegramController extends Controller
         $bot = TelegramBot::query()
             ->where('token', config('telegram.bots.mybot.token'))
             ->where('type', TelegramBotTypeEnum::BASE)->first();
-        $update = new Update($request->post());
+//        $update = new Update($request->post());
+//        $hint = new Hint([
+//            'text' => 'asdfasdf' . random_int(1, 10000)
+//        ]);
+//        $hint->owner_id = $bot->admin->id;
+//        $isSave = $hint->save();
+//        $isSave = $isSave && $bot->hints()->save($hint);
+//
+//        $tag = new Tag([
+//            'name' => 'jaklsdf' . random_int(1, 100000)
+//        ]);
+//        $isSave = $tag->save();
+//        $isSave = $isSave && $hint->tags()->save($tag);
+//        return $isSave;
+//        dd($bot->hints->first()->bots);
+        /** @var Tag $tag */
+        $tag = Tag::query()->first();
+        /** @var Hint $hint */
+        $hint = $tag->hints()->ofBot($bot->id)->first();
 
         $inline_keyboard = json_encode([
             'inline_keyboard' => [

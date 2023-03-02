@@ -90,7 +90,7 @@ class Hint extends Model
     public function scopeOfBot(Builder $builder, $id): Builder
     {
         return $builder->whereHas('bots', function (Builder $builder) use ($id) {
-            $builder->where('id', $id);
+            $builder->where('bot_id', $id);
         });
     }
 
