@@ -23,7 +23,6 @@ class CreateTelegramUserService implements BaseService
             $userValue = $bot->telegram->getChat([
                 'chat_id' => $data['chat_id']
             ])->toArray();
-            $userValue['telegram_id'] = $userValue['id'];
         }
 
         $this->data = array_merge(
