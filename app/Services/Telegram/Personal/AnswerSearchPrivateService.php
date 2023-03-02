@@ -33,6 +33,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         '/update_synonym'      => 'updateSynonym',
         '/delete_synonym'      => 'deleteSynonym',
         '/add_answer'          => 'setAnswer',
+        '/start_setting'       => 'setAnswer',
         '/set_word'            => 'setWord',
         '/set_synonyms'        => 'setSynonyms',
         MessageTypeEnum::OTHER => 'other',
@@ -100,8 +101,9 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             ],
         ];
         $this->reply("введите
-             /add_answer начать настройку \n
+             /start_setting начать быструю настройку \n
              /get_setting - показать настройку \n
+             /cancel - отменить любое действие \n
              ", $inline_keyboard);
 
         return true;
@@ -557,7 +559,6 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             $this->reply("Введите синоним слова!");
 
             $synonym = TagSynonym::query()
-
                 ->find($this->updateService->getCallbackData()->id);
             $this->setUserState('/update_synonym', $synonym);
 
