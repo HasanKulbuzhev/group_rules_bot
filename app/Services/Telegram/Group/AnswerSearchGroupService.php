@@ -23,13 +23,14 @@ class AnswerSearchGroupService extends BaseGroupChatService implements BaseServi
 
     public function message(): bool
     {
+        $hints = $this->bot->hints()->ofTagName(str_word_count($this->updateService->data()->message->text, 1))->get();
+
         /** @var Hint $hint */
-        $hint = $this->bot->hints()->ofTagName($this->update->message->text)->first();
-        if ($hint) {
+        foreach ($hints as $hint) {
             $this->bot->telegram->sendMessage([
-                'chat_id' => $this->update->message->chat->id,
-                'reply_to_message_id' => $this->update->message->messageId,
-                'text' => $hint->text,
+                'chat_id'             => $this->updateService->data()->message->chat->id,
+                'reply_to_message_id' => $this->updateService->data()->message->messageId,
+                'text'                => $hint->text,
             ]);
         }
 
