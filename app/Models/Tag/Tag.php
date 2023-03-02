@@ -5,6 +5,7 @@ namespace App\Models\Tag;
 use App\Models\Hint\Hint;
 use App\Models\TagSynonym\TagSynonym;
 use Carbon\Carbon;
+use DB;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -42,14 +43,15 @@ class Tag extends Model
         return $this->hasMany(TagSynonym::class);
     }
 
-    public function scopeOfName(Builder $builder, $words): Builder
+    /**
+     * @param Builder $builder
+     * @param string  $words
+     * @return Builder
+     */
+    public function scopeOfName(Builder $builder, string $words): Builder
     {
         return $builder->where(function (Builder $builder) use ($words) {
-            if ( is_array($words) ) {
-                $builder->whereIn('name', $words);
-            } else {
-                $builder->where('name', $words);
-            }
+            $builder->whereRaw('"' . $words . '" LIKE CONCAT("%", tags.name, "%")');
 
             $builder->orWhereHas('synonyms', function (Builder $builder) use ($words) {
                 $builder->ofName($words);

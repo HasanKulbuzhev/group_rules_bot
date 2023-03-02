@@ -4,6 +4,7 @@ namespace App\Models\TagSynonym;
 
 use App\Models\Tag\Tag;
 use Carbon\Carbon;
+use DB;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -30,13 +31,14 @@ class TagSynonym extends Model
         return $this->belongsTo(Tag::class);
     }
 
-    public function scopeOfName(Builder $builder, $words): Builder
+    /**
+     * @param Builder $builder
+     * @param string  $words
+     * @return Builder
+     */
+    public function scopeOfName(Builder $builder, string $words): Builder
     {
-        if (is_array($words)) {
-            return $builder->whereIn('name', $words);
-        }
-
-        return $builder->where('name', $words);
+        return $builder->whereRaw('"' . $words . '" LIKE CONCAT("%", tag_synonyms.name, "%")');
     }
 
     public function scopeOfBot(Builder $builder, $id): Builder
