@@ -446,7 +446,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     {
         /** @var tag $tag */
         $tag = Tag::query()
-            ->find($this->updateService->getCallbackData()['id']);
+            ->find($this->updateService->getCallbackData()->id);
 
         /** @var Hint $hint */
         $hint = $tag->hints()->ofBot($this->bot->id)->first();
