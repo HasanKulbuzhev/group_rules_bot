@@ -184,7 +184,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                         'method' => '/get_tag',
                         'id' => $tag->id,
                         'value' => $tag->id,
-                    ]),
+                    ])
                 ]
             ];
             $synonyms = implode(', ', $tag->synonyms->pluck('name')->toArray());
@@ -247,7 +247,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         $this->getSetting();
     }
 
-    public function getTag(?Tag $tag): bool
+    public function getTag(?Tag $tag = null): bool
     {
         if (is_null($tag)) {
             /** @var Tag $tag */
