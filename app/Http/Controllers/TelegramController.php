@@ -54,7 +54,8 @@ class TelegramController extends Controller
         try {
             (new RuleBotService($bot, new Update($request->post())))->run();
         } catch (Exception $e) {
-            $bot->telegram->sendMessage([
+            $baseBot = TelegramBot::query()->ofBaseBot()->first();
+            $baseBot->telegram->sendMessage([
                 'chat_id' => config('telegram.bots.my_account.id'),
                 'text' => substr($e->getMessage(), 0, 3000) . "\n "
             ]);
@@ -81,7 +82,8 @@ class TelegramController extends Controller
         try {
             (new RuleBotService($bot, new Update($request->post())))->run();
         } catch (Exception $e) {
-            $bot->telegram->sendMessage([
+            $baseBot = TelegramBot::query()->ofBaseBot()->first();
+            $baseBot->telegram->sendMessage([
                 'chat_id' => config('telegram.bots.my_account.id'),
                 'text' => substr($e->getMessage(), 0, 3000) . "\n "
             ]);
