@@ -44,7 +44,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         try {
 
             if (!$this->bot->isAdminTelegramId($this->updateService->getChatId())) {
-                return $this->sendErrorNotAdmin();
+                return $this->other();
             }
 
             return parent::run();
