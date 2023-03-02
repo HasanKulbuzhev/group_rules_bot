@@ -206,6 +206,18 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             $text .= "\n Ключевое слово: {$tag->name} ({$synonyms})";
         }
 
+
+        $inline_keyboard[] = [
+            [
+                'text'          => 'Добавить Ключевое слово',
+                'callback_data' => json_encode([
+                    'method' => '/add_tag',
+                    'id'     => $hint->id,
+                    'value'  => $hint->id,
+                ]),
+            ]
+        ];
+
         $this->reply($text, $inline_keyboard);
 
         $this->resetUserState();
@@ -283,7 +295,6 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
     public function deleteHint()
     {
-        $updateService = new TelegramUpdateService($this->update);
         /** @var Hint $hint */
         $hint = $this->bot->hints()->fing($this->updateService->getCallbackData()->id)->first();
 
@@ -352,6 +363,17 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                 ]
             ];
         }
+
+        $inline_keyboard[] = [
+            [
+                'text'          => 'Добавить Синоним',
+                'callback_data' => json_encode([
+                    'method' => '/add_synonym',
+                    'id'     => $tag->id,
+                    'value'  => $tag->id,
+                ]),
+            ]
+        ];
 
         $this->reply($text, $inline_keyboard);
 
