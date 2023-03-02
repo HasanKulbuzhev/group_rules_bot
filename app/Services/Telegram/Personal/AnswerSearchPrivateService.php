@@ -343,12 +343,10 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
     public function deleteTag()
     {
-        $updateService = new TelegramUpdateService($this->update);
         /** @var tag $tag */
         $tag = Tag::query()
-            ->fing($this->updateService->getCallbackData()['id'])
-            ->ofBot($this->bot->id)
-            ->first();
+            ->find($this->updateService->getCallbackData()['id']);
+
         /** @var Hint $hint */
         $hint = $tag->hints()->ofBot($this->bot->id)->first();
 
@@ -360,12 +358,9 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
     public function getSynonym(?TagSynonym $synonym = null): bool
     {
-        $updateService = new TelegramUpdateService($this->update);
         /** @var TagSynonym $synonym */
         $synonym = $synonym ?? TagSynonym::query()
-            ->fing($this->updateService->getCallbackData()->id)
-            ->ofBot($this->bot->id)
-            ->first();
+            ->find($this->updateService->getCallbackData()->id);
 
         if (is_null($synonym)) {
             $this->reply('слово (synonym) не найдено');
@@ -438,7 +433,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     {
         /** @var TagSynonym $synonym */
         $synonym = TagSynonym::query()
-            ->where('id', (new TelegramUpdateService($this->update))->getCallbackData()->id);
+            ->where('id', (new TelegramUpdateService($this->update))->getCallbackData()->id)->first();
         $tag = $synonym->tag;
 
         $isDelete = $synonym->delete();

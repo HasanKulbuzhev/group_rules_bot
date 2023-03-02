@@ -38,7 +38,7 @@ class Hint extends Model
 
     public function bots(): BelongsToMany
     {
-        return $this->belongsToMany(Hint::class, 'bot_hint_assignment', 'hint_id', 'bot_id');
+        return $this->belongsToMany(TelegramBot::class, 'bot_hint_assignment', 'hint_id', 'bot_id');
     }
 
     public function bot()
@@ -70,6 +70,11 @@ class Hint extends Model
         return $this->belongsTo(User::class, 'owner_id');
     }
 
+    /**
+     * @param Builder $builder
+     * @param         $words
+     * @return Builder
+     */
     public function scopeOfTagName(Builder $builder, $words): Builder
     {
         return $builder->whereHas('tags', function (Builder $builder) use ($words) {
@@ -77,6 +82,11 @@ class Hint extends Model
         });
     }
 
+    /**
+     * @param Builder $builder
+     * @param         $id
+     * @return Builder
+     */
     public function scopeOfBot(Builder $builder, $id): Builder
     {
         return $builder->whereHas('bots', function (Builder $builder) use ($id) {
