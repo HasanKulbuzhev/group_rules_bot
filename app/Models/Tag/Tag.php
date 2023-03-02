@@ -44,14 +44,16 @@ class Tag extends Model
 
     public function scopeOfName(Builder $builder, $words): Builder
     {
-        if (is_array($words)) {
-            $builder->whereIn('name', $words);
-        } else {
-            $builder->where('name', $words);
-        }
+        return $builder->where(function (Builder $builder) use($words) {
+            if (is_array($words)) {
+                $builder->whereIn('name', 'like', "%$words%");
+            } else {
+                $builder->where('name', 'like', "%$words%");
+            }
 
-        return $builder->orWhereHas('synonyms', function (Builder $builder) use ($words) {
-            $builder->ofName($words);
+            $builder->orWhereHas('synonyms', function (Builder $builder) use ($words) {
+                $builder->ofName($words);
+            });
         });
     }
 

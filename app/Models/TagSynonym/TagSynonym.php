@@ -33,10 +33,10 @@ class TagSynonym extends Model
     public function scopeOfName(Builder $builder, $words): Builder
     {
         if (is_array($words)) {
-            return $builder->whereIn('name', $words);
+            return $builder->whereIn('name', 'like', "%$words%");
         }
 
-        return $builder->where('name', $words);
+        return $builder->where('name', 'like', "%$words%");
     }
 
     public function scopeOfBot(Builder $builder, $id): Builder
