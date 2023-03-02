@@ -23,7 +23,8 @@ class AnswerSearchGroupService extends BaseGroupChatService implements BaseServi
 
     public function message(): bool
     {
-        $hints = $this->bot->hints()->ofTagName(str_word_count($this->updateService->data()->message->text, 1))->get();
+
+        $hints = $this->bot->hints()->ofTagName(preg_split('~[^\p{L}\p{N}\']+~u', $this->updateService->data()->message->text))->get();
 
         /** @var Hint $hint */
         foreach ($hints as $hint) {
