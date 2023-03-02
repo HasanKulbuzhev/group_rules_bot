@@ -40,7 +40,9 @@ class TelegramBasePrivateChatService extends BaseRulePrivateChatService implemen
         if ($newBot->telegram->isValidToken()) {
             $user = TelegramUser::query()->where('telegram_id', $this->update->message->from->id)->first();
             if (is_null($user)) {
-                $user = new TelegramUser();
+                $user = new TelegramUser([
+                    'telegram_id' => $this->updateService->getChatId()
+                ]);
             }
             $isSave = (new CreateTelegramUserService($user, $this->update->getChat()->toArray()))->run();
             $newBot->telegram_user_id = $user->id;
