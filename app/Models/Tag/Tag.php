@@ -14,13 +14,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * Class Tag
  * @package App\Models\Tag
- * @property int $id
- * @property string $name
- * @property Carbon $created_at
- * @property Carbon $updated_at
+ * @property int                          $id
+ * @property string                       $name
+ * @property Carbon                       $created_at
+ * @property Carbon                       $updated_at
  *
  * @property-read Collection|TagSynonym[] $synonyms
- * @property-read Collection|Hint[] $hints
+ * @property-read Collection|Hint[]       $hints
  */
 class Tag extends Model
 {
@@ -44,11 +44,11 @@ class Tag extends Model
 
     public function scopeOfName(Builder $builder, $words): Builder
     {
-        return $builder->where(function (Builder $builder) use($words) {
-            if (is_array($words)) {
-                $builder->whereIn('name', 'like', "%$words%");
+        return $builder->where(function (Builder $builder) use ($words) {
+            if ( is_array($words) ) {
+                $builder->whereIn('name', 'like', '%' . $words . '%');
             } else {
-                $builder->where('name', 'like', "%$words%");
+                $builder->where('name', 'like', '%' . $words . '%');
             }
 
             $builder->orWhereHas('synonyms', function (Builder $builder) use ($words) {
