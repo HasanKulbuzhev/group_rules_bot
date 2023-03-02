@@ -21,12 +21,15 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         '/cancel'              => 'cancel',
         '/get_setting'         => 'getSetting',
         '/get_hint'            => 'getHint',
+        '/add_hint'            => 'addHint',
         '/update_hint'         => 'updateHint',
         '/delete_hint'         => 'deleteHint',
         '/get_tag'             => 'getTag',
+        '/add_tag'             => 'addTag',
         '/update_tag'          => 'updateTag',
         '/delete_tag'          => 'deleteTag',
         '/get_synonym'         => 'getSynonym',
+        '/add_synonym'         => 'addSynonym',
         '/update_synonym'      => 'updateSynonym',
         '/delete_synonym'      => 'deleteSynonym',
         '/add_answer'          => 'setAnswer',
@@ -127,6 +130,17 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             $text .= "\n ======================== \n";
         }
 
+        $inline_keyboard[] = [
+            [
+                'text'          => 'Добавить Ответ',
+                'callback_data' => json_encode([
+                    'method' => '/add_hint',
+                    'id'     => null,
+                    'value'  => null,
+                ])
+            ]
+        ];
+
         if ( empty($text) ) $text = "вы пока не настроили бот";
 
         $this->reply($text, $inline_keyboard);
@@ -197,6 +211,37 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         $this->resetUserState();
 
         return true;
+    }
+
+    public function addHint(): bool
+    {
+        if ( $this->getUserState() === '/add_hint' ) {
+            $hint = new Hint([
+                'text' => $this->updateService->data()->message->text
+            ]);
+            $hint->owner_id = $this->bot->admin->id;
+            $isSave = $hint->save();
+            $isSave = $isSave && $this->bot->hints()->save($hint);
+
+            if ( $isSave ) {
+                $this->reply("
+                    Ответ успешно сохранен! \n
+                ");
+
+                $this->getSetting();
+            }
+
+            return $isSave;
+        } else {
+            $hint = Hint::query()
+                ->find($this->updateService->getCallbackData()->id);
+
+            $this->setUserState('/add_hint', $hint);
+
+            $this->reply("введите ответ, который вы хотите отдавать!");
+
+            return true;
+        }
     }
 
     public function updateHint(): bool
@@ -313,6 +358,37 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         return true;
     }
 
+    public function addTag(): bool
+    {
+        if ( $this->getUserState() === '/add_tag' ) {
+            /** @var Hint $hint */
+            $hint = Cache::get($this->getUserStatePath(true));
+            $tag = new Tag([
+                'name' => $this->updateService->data()->message->text
+            ]);
+            $isSave = $tag->save();
+            $isSave = $isSave && $hint->tags()->save($tag);
+
+            if ( $isSave ) {
+                $this->reply("
+                Ключевое слово успешно сохранено! \n
+                ");
+
+                $this->getHint($hint);
+            }
+
+            return $isSave;
+        } else {
+            $this->reply('Для начала нужно указать ответ');
+
+            $tag = Tag::query()
+                ->find($this->updateService->getCallbackData()->id);
+            $this->setUserState('/add_tag', $tag);
+
+            return true;
+        }
+    }
+
     public function updateTag(): bool
     {
         if ( $this->hasUserState() ) {
@@ -402,6 +478,42 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         return true;
     }
 
+    public function addSynonym(): bool
+    {
+        if ( $this->getUserState() === '/add_synonym' ) {
+            /** @var Tag $tag */
+            $tag = Cache::get($this->getUserStatePath(true));
+
+            $synonym = new TagSynonym([
+                'name' => $this->updateService->data()->message->text
+            ]);
+            $synonym->tag_id = $tag->id;
+            $isSave = $synonym->save();
+
+            if ( $isSave ) {
+                $this->reply("
+                Всё успешно сохранено! \n
+                Можете протестировать бота
+                ");
+
+                $this->getTag($tag);
+
+                $this->resetUserState();
+            }
+
+            return $isSave;
+        } else {
+            $this->reply("Введите синоним слова!");
+
+            $synonym = TagSynonym::query()
+                ->find($this->updateService->getCallbackData()->id);
+
+            $this->setUserState('/add_synonym', $synonym);
+
+            return true;
+        }
+    }
+
     public function updateSynonym(): bool
     {
         if ( $this->hasUserState() ) {
@@ -423,6 +535,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             $this->reply("Введите синоним слова!");
 
             $synonym = TagSynonym::query()
+
                 ->find($this->updateService->getCallbackData()->id);
             $this->setUserState('/update_synonym', $synonym);
 
