@@ -405,7 +405,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         } else {
             $this->reply('Для начала нужно указать ответ');
 
-            $tag = Tag::query()
+            $tag = Hint::query()
                 ->find($this->updateService->getCallbackData()->id);
             $this->setUserState('/add_tag', $tag);
 
@@ -529,7 +529,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         } else {
             $this->reply("Введите синоним слова!");
 
-            $synonym = TagSynonym::query()
+            $synonym = Tag::query()
                 ->find($this->updateService->getCallbackData()->id);
 
             $this->setUserState('/add_synonym', $synonym);
