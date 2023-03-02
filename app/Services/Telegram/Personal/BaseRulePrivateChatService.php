@@ -22,10 +22,6 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
 
         $method = null;
 
-        if (!$this->bot->isAdminTelegramId($this->updateService->getChatId())) {
-            return $this->sendErrorNotAdmin();
-        }
-
         if (
         in_array(MessageTypeEnum::CALLBACK_QUERY, $this->updateService->getMessageInnerTypes())
         ) {
