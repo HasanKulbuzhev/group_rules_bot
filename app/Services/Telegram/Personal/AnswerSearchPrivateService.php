@@ -529,10 +529,10 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         } else {
             $this->reply("Введите синоним слова!");
 
-            $synonym = Tag::query()
+            $tag = Tag::query()
                 ->find($this->updateService->getCallbackData()->id);
 
-            $this->setUserState('/add_synonym', $synonym);
+            $this->setUserState('/add_synonym', $tag);
 
             return true;
         }
