@@ -58,9 +58,7 @@ class Tag extends Model
     public function scopeOfBot(Builder $builder, $id): Builder
     {
         return $builder->whereHas('hints', function (Builder $builder) use ($id) {
-           $builder->ofBot('bots', function (Builder $builder) use ($id) {
-               $builder->where('id', $id);
-           });
+            $builder->ofBot($id);
         });
     }
 
