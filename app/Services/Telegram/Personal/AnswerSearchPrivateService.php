@@ -54,7 +54,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
     public function other(): bool
     {
-        $hints = $this->bot->hints()->ofTagName($this->updateService->data()->message->text)->get();
+        $hints = $this->bot->hints()->ofTagName(str_word_count($this->updateService->data()->message->text, 1))->get();
 
         /** @var Hint $hint */
         foreach ($hints as $hint) {

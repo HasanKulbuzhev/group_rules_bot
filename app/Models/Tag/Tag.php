@@ -46,9 +46,9 @@ class Tag extends Model
     {
         return $builder->where(function (Builder $builder) use ($words) {
             if ( is_array($words) ) {
-                $builder->whereIn('name', 'LIKE', '%' . $words. '%');
+                $builder->whereIn('name', $words);
             } else {
-                $builder->where('name', 'LIKE', '%' . $words. '%');
+                $builder->where('name', $words);
             }
 
             $builder->orWhereHas('synonyms', function (Builder $builder) use ($words) {
