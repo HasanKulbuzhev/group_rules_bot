@@ -298,7 +298,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     public function deleteHint()
     {
         /** @var Hint $hint */
-        $hint = $this->bot->hints()->fing($this->updateService->getCallbackData()->id)->first();
+        $hint = $this->bot->hints()->find($this->updateService->getCallbackData()->id)->first();
 
         $hint->delete();
 
