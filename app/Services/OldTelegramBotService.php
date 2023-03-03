@@ -2,13 +2,13 @@
 
 namespace App\Services;
 
-use App\Services\Api\MyApi;
+use App\Services\Api\TelegramBotApi;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Telegram\Bot\Api;
 use Telegram\Bot\Objects\Message;
 use Telegram\Bot\Objects\Update;
 
-class TelegramBotService
+class OldTelegramBotService
 {
     public Api $param;
     private FilesystemAdapter $disk;
@@ -18,7 +18,7 @@ class TelegramBotService
         '1816892506',
         '-1001606203794',
         '1606203794',
-        /** Это id https://t.me/ilmalkalam/300 */
+        /** Это id https://t.me/ilmalkalam */
         '-1001694365544',
         '1694365544'
     ];
@@ -162,7 +162,7 @@ class TelegramBotService
     private function removeMessage(int $messageId, $chatId): bool
     {
         try {
-            (new MyApi(config('telegram.bots.mybot.token')))->deleteMessage([
+            (new TelegramBotApi(config('telegram.bots.mybot.token')))->deleteMessage([
                 'chat_id' => $chatId,
                 'message_id' => $messageId
             ]);
@@ -237,6 +237,11 @@ class TelegramBotService
     {
         return data_get($this->update->toArray(), 'message.chat.id') == config('telegram.bots.mybot.admin');
 
+    }
+
+    private function test()
+    {
+        $this->update->getMessage()->getText();
     }
 
     private function runAdminChat()
