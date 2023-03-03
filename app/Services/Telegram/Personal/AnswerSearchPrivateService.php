@@ -96,7 +96,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                     ]),
                 ],
                 [
-                    'text'          => 'Изменить настройки',
+                    'text'          => 'Быстрые настройки',
                     'callback_data' => json_encode([
                         'method' => '/add_answer',
                         'id'     => 'null',
@@ -305,6 +305,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         /** @var Hint $hint */
         $hint = $this->bot->hints()->find($this->updateService->getCallbackData()->id);
 
+        $hint->tags()->delete();
         $hint->delete();
 
         $this->reply('Успешно удалено');
@@ -408,7 +409,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
             return $isSave;
         } else {
-            $this->reply('Для начала нужно указать ответ');
+            $this->reply('Введите слово');
 
             $tag = Hint::query()
                 ->find($this->updateService->getCallbackData()->id);
@@ -437,7 +438,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
             return $isSave;
         } else {
-            $this->reply("Введите ключевое слово, по которому будет отдаваться ответ!");
+            $this->reply("Введите слово");
 
             $tag = Tag::query()
                 ->find($this->updateService->getCallbackData()->id);
@@ -522,7 +523,6 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             if ( $isSave ) {
                 $this->reply("
                 Всё успешно сохранено! \n
-                Можете протестировать бота
                 ");
 
                 $this->getTag($tag);
