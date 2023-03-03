@@ -26,7 +26,29 @@ class TelegramBasePrivateChatService extends BaseRulePrivateChatService implemen
 
     protected function getHelp(): bool
     {
-        $this->reply(view('base_bot_help'));
+
+        $inline_keyboard = [
+            [
+                [
+                    'text'          => 'Создать Бота для Правил Группы',
+                    'callback_data' => json_encode([
+                        'method' => '/create_group_rule_bot',
+                        'id'     => null,
+                        'value'  => null,
+                    ]),
+                ],
+                [
+                    'text'          => 'Создать Бота для АвтоОтветов',
+                    'callback_data' => json_encode([
+                        'method' => '/create_search_answer_bot',
+                        'id'     => null,
+                        'value'  => null,
+                    ]),
+                ],
+            ]
+        ];
+
+        $this->reply(view('base_bot_help'), $inline_keyboard);
 
         return true;
     }
