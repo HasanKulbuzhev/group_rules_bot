@@ -38,7 +38,7 @@ class TagSynonym extends Model
      */
     public function scopeOfName(Builder $builder, string $words): Builder
     {
-        return $builder->whereRaw('"?" LIKE CONCAT("%", tag_synonyms.name, "%")', [$words]);
+        return $builder->whereRaw('? LIKE CONCAT("%", tag_synonyms.name, "%")', [$words]);
     }
 
     public function scopeOfBot(Builder $builder, $id): Builder

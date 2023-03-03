@@ -51,7 +51,7 @@ class Tag extends Model
     public function scopeOfName(Builder $builder, string $words): Builder
     {
         return $builder->where(function (Builder $builder) use ($words) {
-            $builder->whereRaw('"?" LIKE CONCAT("%", tags.name, "%")', [$words]);
+            $builder->whereRaw('? LIKE CONCAT("%", tags.name, "%")', [$words]);
 
             $builder->orWhereHas('synonyms', function (Builder $builder) use ($words) {
                 $builder->ofName($words);

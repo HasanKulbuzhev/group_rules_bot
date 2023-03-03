@@ -116,10 +116,13 @@ class TelegramController extends Controller
 //        $isSave = $isSave && $hint->tags()->save($tag);
 //        return $isSave;
 //        dd($bot->hints->first()->bots);
+        $hints = $bot->hints()->ofTagName('hasan')->get();
+        dd($hints);
         /** @var Tag $tag */
         $tag = Tag::query()->first();
         /** @var Hint $hint */
         $hint = $tag->hints()->ofBot($bot->id)->first();
+        dd($hint);
 
         $inline_keyboard = json_encode([
             'inline_keyboard' => [
