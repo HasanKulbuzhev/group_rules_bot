@@ -4,12 +4,15 @@
 namespace App\Services\Telegram\Personal;
 
 
+use App\Enums\Cache\CacheTypeEnum;
 use App\Enums\Telegram\MessageTypeEnum;
 use App\Interfaces\Base\BaseService;
 use App\Models\Hint\Hint;
 use App\Models\Tag\Tag;
 use App\Models\TagSynonym\TagSynonym;
+use App\Models\TelegramUser;
 use App\Services\Telegram\Update\TelegramUpdateService;
+use App\Services\TelegramUser\CreateTelegramUserService;
 use Exception;
 use Cache;
 
@@ -51,6 +54,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         } catch (Exception $exception) {
             $text = $exception->getMessage();
             $allErrorText = json_encode($exception->getTrace());
+            $this->reply('Произошло что-то не так');
 
             throw new Exception("
                 С ботом @{$this->bot->username} произошло что-то не так. \n
@@ -99,6 +103,14 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                     'text'          => 'Быстрые настройки',
                     'callback_data' => json_encode([
                         'method' => '/add_answer',
+                        'id'     => 'null',
+                        'value'  => 'null',
+                    ]),
+                ],
+                [
+                    'text'          => 'Список Админов',
+                    'callback_data' => json_encode([
+                        'method' => '/get_admins',
                         'id'     => 'null',
                         'value'  => 'null',
                     ]),
@@ -677,5 +689,117 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
             return true;
         }
+    }
+
+    public function getAdmins()
+    {
+        $inline_keyboard = [];
+
+        foreach ($this->bot->admins as $admin)
+        {
+            $inline_keyboard[] = [
+                [
+                    'text'          => $admin->first_name,
+                    'callback_data' => json_encode([
+                        'method' => '/get_setting',
+                        'id'     => $admin->id,
+                        'value'  => $admin->username,
+                    ]),
+                ]
+            ];
+        }
+
+        $inline_keyboard[] = [
+            [
+                'text'          => 'Добавить админа',
+                'callback_data' => json_encode([
+                    'method' => '/get_setting',
+                    'id'     => null,
+                    'value'  => null,
+                ]),
+            ]
+        ];
+
+        $this->reply('Список админов этого бота', $inline_keyboard);
+    }
+
+    public function setActivateAdmin(): bool
+    {
+        if ($this->bot->isAdminTelegramId($this->updateService->getChatId())) {
+            return true;
+        }
+
+        $telegramUser = TelegramUser::query()
+            ->where('telegram_id', $this->updateService->getChatId())
+            ->first();
+
+        if (is_null($telegramUser)) {
+            $telegramUser = new TelegramUser([
+                'telegram_id' => $this->updateService->getChatId()
+            ]);
+        }
+
+        $isSave = (new CreateTelegramUserService($telegramUser, $this->update->getChat()->toArray()))->run();
+
+        if ($this->getSecretCode() === $this->updateService->data()->message->text) {
+            $this->bot->admins()->sync($telegramUser);
+        }
+
+        return $isSave;
+    }
+
+    public function addAdmins(): bool
+    {
+        if (!$this->bot->isAdminTelegramId($this->updateService->getChatId())) {
+            return true;
+        }
+
+        $code = 'B' . $this->bot->telegram_user_id . '.C' . md5(time());
+
+        $this->setSecretCode($code);
+
+        $this->reply(view('add_bot_text', [
+            'code' => $code
+        ]));
+
+        return true;
+    }
+
+    public function deleteAdmin(): bool
+    {
+        if (!$this->bot->isAdminTelegramId($this->updateService->getChatId() ||
+            !$this->bot->hasAdmin($this->updateService->getCallbackData()->id))) {
+            $this->reply('Пользователь не найден');
+            return true;
+        }
+
+        $this->reply('Удалено');
+
+        return true;
+    }
+
+    public function hasSecretCode(): bool
+    {
+        return \Cache::has($this->getSecretCodePath());
+    }
+
+    public function getSecretCodePath(): string
+    {
+        return CacheTypeEnum::PRIVATE_RULE_TYPE . "secret_code" . ".{$this->bot->telegram_id}.{$this->updateService->data()->message->chat->id}.";
+    }
+
+    public function getSecretCode()
+    {
+        return \Cache::get($this->getSecretCodePath());
+    }
+
+    public function setSecretCode(string $code)
+    {
+        \Cache::put($this->getSecretCodePath(), $code);
+    }
+
+    public function deleteSecretCode()
+    {
+        \Cache::delete($this->getSecretCodePath());
     }
 }

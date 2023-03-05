@@ -17,24 +17,25 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 /**
  * Class TelegramBot
  * @package App
- * @property int               $id
- * @property int               $telegram_id
- * @property string            $username
- * @property string            $first_name
- * @property string            $token
- * @property int               $type
- * @property boolean           $can_join_groups
- * @property boolean           $can_read_all_group_messages
- * @property boolean           $supports_inline_queries
- * @property int               $telegram_user_id
- * @property Carbon            $created_at
- * @property Carbon            $updated_at
+ * @property int                       $id
+ * @property int                       $telegram_id
+ * @property string                    $username
+ * @property string                    $first_name
+ * @property string                    $token
+ * @property int                       $type
+ * @property boolean                   $can_join_groups
+ * @property boolean                   $can_read_all_group_messages
+ * @property boolean                   $supports_inline_queries
+ * @property int                       $telegram_user_id
+ * @property Carbon                    $created_at
+ * @property Carbon                    $updated_at
  *
- * @property TelegramBotApi    $telegram
+ * @property TelegramBotApi            $telegram
  *
- * @property TelegramUser      $admin
- * @property Collection|Hint[] $hints
- * @property RuleBotSetting    $setting
+ * @property TelegramUser              $admin
+ * @property Collection|TelegramUser[] $admins
+ * @property Collection|Hint[]         $hints
+ * @property RuleBotSetting            $setting
  */
 class TelegramBot extends Model
 {
@@ -73,6 +74,16 @@ class TelegramBot extends Model
         return $this->token;
     }
 
+    public function owner()
+    {
+        return $this->belongsTo(TelegramUser::class, 'telegram_user_id');
+    }
+
+    public function admins(): BelongsToMany
+    {
+        return $this->belongsToMany(TelegramUser::class, 'bot_admins', 'telegram_user_id', 'id');
+    }
+
     public function isAdminTelegramId(int $id): bool
     {
         return $id === $this->admin->telegram_id;
@@ -83,5 +94,10 @@ class TelegramBot extends Model
         return $builder
             ->where('token', config('telegram.bots.mybot.token'))
             ->where('type', TelegramBotTypeEnum::BASE)->first();
+    }
+
+    public function hasAdmin(int $telegramUserId): bool
+    {
+        return $this->admins()->where('id', $telegramUserId)->exists();
     }
 }
