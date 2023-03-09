@@ -60,25 +60,27 @@ class TelegramBasePrivateChatService extends BaseRulePrivateChatService implemen
         $newBot = TelegramBot::query()->where('token', $token)->first() ?? new TelegramBot();
         $newBot->token = $token;
         if ($newBot->telegram->isValidToken()) {
-            $user = TelegramUser::query()->where('telegram_id', $this->update->message->from->id)->first();
-            if (is_null($user)) {
-                $user = new TelegramUser([
-                    'telegram_id' => $this->updateService->getChatId()
-                ]);
-            }
-            $isSave = (new CreateTelegramUserService($user, $this->update->getChat()->toArray()))->run();
-            $newBot->telegram_user_id = $user->id;
+            \DB::transaction(function () use ($newBot, $type) {
+                $user = TelegramUser::query()->where('telegram_id', $this->update->message->from->id)->first();
+                if (is_null($user)) {
+                    $user = new TelegramUser([
+                        'telegram_id' => $this->updateService->getChatId()
+                    ]);
+                }
+                $isSave = (new CreateTelegramUserService($user, $this->update->getChat()->toArray()))->run();
+                $newBot->telegram_user_id = $user->id;
 
-            $isSave = $isSave && (new CreateTelegramBotService($newBot, [
-                'type' => $type
-            ]))->run();
+                $isSave = $isSave && (new CreateTelegramBotService($newBot, [
+                        'type' => $type
+                    ]))->run();
 
-            if ($isSave) {
-                $newBot->telegram->setWebhook([
-                    'url' => route('bot'. $type, ['token' => $newBot->token])
-                ]);
-                $this->reply("Ваш бот {$newBot->username} успешно сохранён!! \n Вы можете перейти к его настройке");
-            }
+                if ($isSave) {
+                    $newBot->telegram->setWebhook([
+                        'url' => route('bot'. $type, ['token' => $newBot->token])
+                    ]);
+                    $this->reply("Ваш бот {$newBot->username} успешно сохранён!! \n Вы можете перейти к его настройке");
+                }
+            });
 
             return true;
         } else {
