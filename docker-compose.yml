@@ -90,9 +90,9 @@ networks:
         driver: bridge
 
 volumes:
-  ${DB_CONTAINER_VOLUME}:
+  rule_bot_mysql_volume:
     driver: local
-  ${DB_PG_CONTAINER_VOLUME}:
+  rule_bot_postgres_volume:
         driver: local
-  ${DB_REDIS_CONTAINER_VOLUME}:
+  rule_bot_redis_volume:
       driver: local
