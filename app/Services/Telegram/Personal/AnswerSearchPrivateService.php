@@ -300,7 +300,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         }
     }
 
-    public function deleteHint()
+    public function deleteHint(): bool
     {
         /** @var Hint $hint */
         $hint = $this->bot->hints()->find($this->updateService->getCallbackData()->id);
@@ -310,6 +310,8 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
         $this->reply('Успешно удалено');
         $this->getSetting();
+
+        return true;
     }
 
     public function getTag(?Tag $tag = null): bool
