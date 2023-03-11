@@ -450,7 +450,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         }
     }
 
-    public function deleteTag()
+    public function deleteTag(): bool
     {
         /** @var tag $tag */
         $tag = Tag::query()
@@ -463,6 +463,8 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
         $this->reply('Успешно удалено');
         $this->getHint($hint);
+
+        return true;
     }
 
     public function getSynonym(?TagSynonym $synonym = null): bool
