@@ -312,7 +312,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         }
     }
 
-    public function deleteHint()
+    public function deleteHint(): bool
     {
         /** @var Hint $hint */
         $hint = $this->bot->hints()->find($this->updateService->getCallbackData()->id);
@@ -322,6 +322,8 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
         $this->reply('Успешно удалено');
         $this->getSetting();
+
+        return true;
     }
 
     public function getTag(?Tag $tag = null): bool
@@ -460,7 +462,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         }
     }
 
-    public function deleteTag()
+    public function deleteTag(): bool
     {
         /** @var tag $tag */
         $tag = Tag::query()
@@ -473,6 +475,8 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
         $this->reply('Успешно удалено');
         $this->getHint($hint);
+
+        return true;
     }
 
     public function getSynonym(?TagSynonym $synonym = null): bool

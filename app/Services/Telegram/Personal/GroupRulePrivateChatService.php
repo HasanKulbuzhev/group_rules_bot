@@ -35,19 +35,21 @@ class GroupRulePrivateChatService extends BaseRulePrivateChatService implements 
     protected function setRules()
     {
         if (\Cache::has($this->getUserStatePath())) {
-            $this->bot->setting->rule = $this->update->message->text;
-            $isSave = $this->bot->setting->save();
+            \DB::transaction(function() {
+                $this->bot->setting->rule = $this->update->message->text;
+                $isSave = $this->bot->setting->save();
 
-            $this->bot->telegram->sendMessage([
-                'chat_id' => $this->update->message->chat->id,
-                'text' => "Правила успешно сохранены!"
-            ]);
+                $this->bot->telegram->sendMessage([
+                    'chat_id' => $this->update->message->chat->id,
+                    'text' => "Правила успешно сохранены!"
+                ]);
 
-            if ($isSave) {
-                \Cache::delete($this->getUserStatePath());
-            }
+                if ($isSave) {
+                    \Cache::delete($this->getUserStatePath());
+                }
+            });
 
-            return $isSave;
+            return true;
         } else {
             $this->bot->telegram->sendMessage([
                 'chat_id' => $this->update->message->chat->id,

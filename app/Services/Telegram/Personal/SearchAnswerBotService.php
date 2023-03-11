@@ -7,6 +7,7 @@ use App\Interfaces\Base\BaseService;
 use App\Services\Base\Telegram\BaseRuleChatService;
 use App\Services\Telegram\Group\AnswerSearchGroupService;
 use App\Services\Telegram\Update\TelegramUpdateService;
+use DB;
 
 class SearchAnswerBotService extends BaseRuleChatService implements BaseService
 {
@@ -18,7 +19,12 @@ class SearchAnswerBotService extends BaseRuleChatService implements BaseService
     public function run(): bool
     {
         $chatType = (new TelegramUpdateService($this->update))->getChatType();
+        $isSave = true;
 
-        return $this->runService($chatType);
+        DB::transaction(function() use ($isSave, $chatType) {
+            $isSave = $this->runService($chatType) && $isSave;
+        });
+
+        return $isSave;
     }
 }
