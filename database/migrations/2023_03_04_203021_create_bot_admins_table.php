@@ -13,6 +13,10 @@ class CreateBotAdminsTable extends Migration
      */
     public function up()
     {
+        Schema::table('tags', function (Blueprint $table) {
+            $table->string('name')->unique(false)->nullable()->change();
+        });
+
         Schema::create('bot_admins', function (Blueprint $table) {
             $table->id();
             $table->foreignId('telegram_user_id')->constrained('telegram_users')->cascadeOnDelete();
@@ -28,5 +32,9 @@ class CreateBotAdminsTable extends Migration
     public function down()
     {
         Schema::dropIfExists('bot_admins');
+
+        Schema::table('tags', function (Blueprint $table) {
+            $table->string('name')->unique()->nullable()->change();
+        });
     }
 }
