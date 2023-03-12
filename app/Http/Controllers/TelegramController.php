@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Telegram\TelegramBotTypeEnum;
+use App\Http\Requests\TelegramUpdateRequest;
 use App\Models\Hint\Hint;
 use App\Models\Tag\Tag;
 use App\Services\Telegram\RuleBotService;
@@ -39,7 +40,7 @@ class TelegramController extends Controller
         return 'ok';
     }
 
-    public function groupRuleBot(Request $request, string $token): string
+    public function groupRuleBot(TelegramUpdateRequest $request, string $token): string
     {
         /** @var TelegramBot $bot */
         $bot = TelegramBot::query()
@@ -95,7 +96,7 @@ class TelegramController extends Controller
         return 'ok';
     }
 
-    public function test(Request $request)
+    public function test(TelegramUpdateRequest $request)
     {
         /** @var TelegramBot $bot */
         $bot = TelegramBot::query()
