@@ -146,25 +146,22 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
     public function getSetting(): bool
     {
-        $text = '';
+        $text = 'Список ваших ответов';
         $inline_keyboard = [];
-        foreach ($this->bot->hints as $hint) {
+        $this->getUserState(true);
+        $page = $this->updateService->getCallbackData()->page ?? 0;
+        foreach ($this->bot->hints->slice($page * 10, ($page * 10) + 10) as $hint) {
             $inline_keyboard[] = [
                 [
-                    'text'          => $hint->text,
+                    'text'          => substr($hint->text, 0, 50),
                     'callback_data' => json_encode([
                         'method' => '/get_hint',
                         'id'     => $hint->id,
                         'value'  => $hint->id,
+                        'page'   => null
                     ])
                 ]
             ];
-            $text .= "\n Ответ: {$hint->text}";
-            foreach ($hint->tags as $tag) {
-                $synonyms = implode(', ', $tag->synonyms->pluck('name')->toArray());
-                $text .= "\n Ключевое слово: {$tag->name} ({$synonyms})";
-            }
-            $text .= "\n ======================== \n";
         }
 
         $inline_keyboard[] = [
@@ -178,7 +175,35 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             ]
         ];
 
-        if (empty($text)) $text = "вы пока не настроили бот";
+        $inline_keyboard[] = [
+            [
+                'text'          => '<',
+                'callback_data' => json_encode([
+                    'method' => '/get_setting',
+                    'id'     => null,
+                    'value'  => null,
+                    'page'   => empty($page) ? $page : $page - 1,
+                ])
+            ],
+            [
+                'text'          => "Страница {$page}",
+                'callback_data' => json_encode([
+                    'method' => '/get_setting',
+                    'id'     => null,
+                    'value'  => null,
+                    'page'   => $page,
+                ])
+            ],
+            [
+                'text'          => ">",
+                'callback_data' => json_encode([
+                    'method' => '/get_setting',
+                    'id'     => null,
+                    'value'  => null,
+                    'page'   => $page + 1,
+                ])
+            ],
+        ];
 
         $this->reply($text, $inline_keyboard);
 
@@ -228,10 +253,11 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             ]
         ];
 
-        foreach ($hint->tags as $tag) {
+        $page = $this->updateService->getCallbackData()->page ?? 0;
+        foreach ($hint->tags->slice($page * 10, ($page * 10) + 10) as $tag) {
             $inline_keyboard[] = [
                 [
-                    'text'          => $tag->name,
+                    'text'          => substr($tag->name, 0, 50),
                     'callback_data' => json_encode([
                         'method' => '/get_tag',
                         'id'     => $tag->id,
@@ -253,6 +279,36 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                     'value'  => $hint->id,
                 ]),
             ]
+        ];
+
+        $inline_keyboard[] = [
+            [
+                'text'          => '<',
+                'callback_data' => json_encode([
+                    'method' => '/get_hint',
+                    'id'     => $hint->id,
+                    'value'  => $hint->id,
+                    'page'   => empty($page) ? $page : $page - 1,
+                ])
+            ],
+            [
+                'text'          => "Страница {$page}",
+                'callback_data' => json_encode([
+                    'method' => '/get_hint',
+                    'id'     => $hint->id,
+                    'value'  => $hint->id,
+                    'page'   => $page,
+                ])
+            ],
+            [
+                'text'          => ">",
+                'callback_data' => json_encode([
+                    'method' => '/get_hint',
+                    'id'     => $hint->id,
+                    'value'  => $hint->id,
+                    'page'   => $page + 1,
+                ])
+            ],
         ];
 
         $this->reply($text, $inline_keyboard);
@@ -391,7 +447,8 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             ]
         ];
 
-        foreach ($tag->synonyms as $synonym) {
+        $page = $this->updateService->getCallbackData()->page ?? 0;
+        foreach ($tag->synonyms->slice($page * 10, ($page * 10) + 10) as $synonym) {
             $inline_keyboard[] = [
                 [
                     'text'          => $synonym->name,
@@ -413,6 +470,37 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                     'value'  => $tag->id,
                 ]),
             ]
+        ];
+
+
+        $inline_keyboard[] = [
+            [
+                'text'          => '<',
+                'callback_data' => json_encode([
+                    'method' => '/get_tag',
+                    'id'     => $tag->id,
+                    'value'  => $tag->id,
+                    'page'   => empty($page) ? $page : $page - 1,
+                ])
+            ],
+            [
+                'text'          => "Страница {$page}",
+                'callback_data' => json_encode([
+                    'method' => '/get_tag',
+                    'id'     => $tag->id,
+                    'value'  => $tag->id,
+                    'page'   => $page,
+                ])
+            ],
+            [
+                'text'          => ">",
+                'callback_data' => json_encode([
+                    'method' => '/get_tag',
+                    'id'     => $tag->id,
+                    'value'  => $tag->id,
+                    'page'  => $page + 1,
+                ])
+            ],
         ];
 
         $this->reply($text, $inline_keyboard);
@@ -758,8 +846,8 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             /** @var array $hintValue */
             foreach ($hints as $hintValue) {
                 $hint = $this->bot->hints()->where('text', $hintValue['text'])->first() ?? new Hint([
-                    'text' => $hintValue['text']
-                ]);
+                        'text' => $hintValue['text']
+                    ]);
                 $hint->owner_id = $this->bot->admin->id;
                 $isSave = $isSave && $hint->save();
                 $isSave = $isSave && $this->bot->hints()->save($hint);
@@ -776,8 +864,8 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                     /** @var array $synonymValue */
                     foreach ($tagValue['synonyms'] as $synonymValue) {
                         $synonym = $tag->synonyms()->where('name', $synonymValue['name'])->first() ?? new TagSynonym([
-                            'name' => $synonymValue['name']
-                        ]);
+                                'name' => $synonymValue['name']
+                            ]);
                         $synonym->tag_id = $tag->id;
                         $isSave = $isSave && $synonym->save();
                     }
