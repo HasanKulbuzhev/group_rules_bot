@@ -55,19 +55,19 @@ class TelegramBasePrivateChatService extends BaseRulePrivateChatService implemen
 
     protected function createBot(int $type): bool
     {
-        $token = $this->update->message->text;
+        $token = $this->updateService->data()->message->text;
 
         $newBot = TelegramBot::query()->where('token', $token)->first() ?? new TelegramBot();
         $newBot->token = $token;
         if ($newBot->telegram->isValidToken()) {
             \DB::transaction(function () use ($newBot, $type) {
-                $user = TelegramUser::query()->where('telegram_id', $this->update->message->from->id)->first();
+                $user = TelegramUser::query()->where('telegram_id', $this->updateService->data()->message->from->id)->first();
                 if (is_null($user)) {
                     $user = new TelegramUser([
                         'telegram_id' => $this->updateService->getChatId()
                     ]);
                 }
-                $isSave = (new CreateTelegramUserService($user, $this->update->getChat()->toArray()))->run();
+                $isSave = (new CreateTelegramUserService($user, $this->updateService->data()->getChat()->toArray()))->run();
                 $newBot->telegram_user_id = $user->id;
 
                 $isSave = $isSave && (new CreateTelegramBotService($newBot, [
