@@ -153,7 +153,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         foreach ($this->bot->hints->slice($page * 10, ($page * 10) + 10) as $hint) {
             $inline_keyboard[] = [
                 [
-                    'text'          => substr($hint->text, 0, 50),
+                    'text'          => $hint->text,
                     'callback_data' => json_encode([
                         'method' => '/get_hint',
                         'id'     => $hint->id,
@@ -186,7 +186,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                 ])
             ],
             [
-                'text'          => "Страница {$page}",
+                'text'          => 'Страница ' . ($page + 1),
                 'callback_data' => json_encode([
                     'method' => '/get_setting',
                     'id'     => null,
@@ -257,7 +257,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         foreach ($hint->tags->slice($page * 10, ($page * 10) + 10) as $tag) {
             $inline_keyboard[] = [
                 [
-                    'text'          => substr($tag->name, 0, 50),
+                    'text'          => $tag->name,
                     'callback_data' => json_encode([
                         'method' => '/get_tag',
                         'id'     => $tag->id,
@@ -292,7 +292,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                 ])
             ],
             [
-                'text'          => "Страница {$page}",
+                'text'          => 'Страница ' . ($page + 1),
                 'callback_data' => json_encode([
                     'method' => '/get_hint',
                     'id'     => $hint->id,
@@ -484,7 +484,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                 ])
             ],
             [
-                'text'          => "Страница {$page}",
+                'text'          => 'Страница ' . ($page + 1),
                 'callback_data' => json_encode([
                     'method' => '/get_tag',
                     'id'     => $tag->id,

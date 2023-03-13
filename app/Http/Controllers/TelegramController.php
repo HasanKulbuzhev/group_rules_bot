@@ -107,7 +107,7 @@ class TelegramController extends Controller
             ->where('type', TelegramBotTypeEnum::BASE)
             ->with('hints.tags')
             ->first();
-        dd(Hint::query()->with('tags.synonyms')->get()->toArray());
+        dd(Hint::query()->with('tags.synonyms')->get()->slice(10, 54));
         $file = $bot->telegram->getFile([
             'file_id' => 'BQACAgIAAxkBAAIJhGQPJvBY53Qv2eAHsi5NRl2HuLKTAAJQKAAC-655SDOoIKqyjZKpLwQ'
         ]);
