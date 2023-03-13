@@ -17,6 +17,12 @@ use Telegram\Bot\Objects\File;
 
 class AnswerSearchPrivateService extends BaseRulePrivateChatService implements BaseService
 {
+    protected array $allow_types = [
+        MessageTypeEnum::TEXT,
+        MessageTypeEnum::CALLBACK_QUERY,
+        MessageTypeEnum::DOCUMENT,
+    ];
+
     protected array $rules = [
         '/start'               => 'getHelp',
         '/help'                => 'getHelp',
@@ -705,13 +711,17 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     public function restore(): bool
     {
         if ($this->hasUserState()) {
+            $validator = \Validator::make($this->update->toArray(), [
+                'document' => ['required', 'array']
+            ]);
+
+            if ($validator->fails()) {
+                throw new Exception('Невалидный документ');
+            }
+
             /** @var File $file */
             $file = $this->bot->telegram->getFile([
                 'file_id' => $this->updateService->data()->message->document->fileId
-            ]);
-
-            \Validator::make($this->update->toArray(), [
-                'document' => ['required', 'array']
             ]);
 
             $content = $this->bot->telegram->downloadFile($file, 'test.json');

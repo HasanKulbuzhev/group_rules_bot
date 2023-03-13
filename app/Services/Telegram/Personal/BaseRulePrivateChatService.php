@@ -12,12 +12,14 @@ use Telegram\Bot\FileUpload\InputFile;
 
 class BaseRulePrivateChatService extends BaseRuleChatService implements BaseService
 {
+    protected array $allow_types = [
+        MessageTypeEnum::TEXT,
+        MessageTypeEnum::CALLBACK_QUERY,
+    ];
+
     public function run(): bool
     {
-        if (
-            !in_array(MessageTypeEnum::TEXT, $this->updateService->getMessageInnerTypes()) &&
-            !in_array(MessageTypeEnum::CALLBACK_QUERY, $this->updateService->getMessageInnerTypes())
-        ) {
+        if ($this->allow_types) {
             return true;
         }
 
@@ -55,6 +57,17 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
                 'chat_id' => $this->updateService->data()->message->chat->id,
                 'text'    => "Вы не являетесь админом бота!"
             ]);
+
+        return true;
+    }
+
+    protected function allowTypes(): bool
+    {
+        foreach ($this->allow_types as $type) {
+            if(!in_array($type, $this->updateService->getMessageInnerTypes())) {
+                return false;
+            }
+        }
 
         return true;
     }
