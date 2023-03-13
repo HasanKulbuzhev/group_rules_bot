@@ -687,7 +687,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         }
     }
 
-    public function getBackup()
+    public function getBackup(): bool
     {
         $values = json_encode($this->bot->hints()->with('tags.synonyms')->get()->toArray());
 
@@ -696,6 +696,8 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             [],
             InputFile::createFromContents($values, 'backup.json')
         );
+
+        return true;
     }
 
     public function restore(): bool
