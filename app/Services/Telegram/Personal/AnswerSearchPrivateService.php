@@ -757,6 +757,8 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         } else {
             $this->reply('Отправьте документ с бекапом в формате .json');
 
+            $this->setUserState('/restore');
+
             return true;
         }
     }
