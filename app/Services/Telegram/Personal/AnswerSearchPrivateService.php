@@ -56,6 +56,8 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             $text = $exception->getMessage();
             $allErrorText = json_encode($exception->getTrace());
 
+            $this->resetUserState();
+
             throw new Exception("
                 С ботом @{$this->bot->username} произошло что-то не так. \n
                 $text. \n
@@ -708,6 +710,10 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                 'file_id' => $this->updateService->data()->message->document->fileId
             ]);
 
+            \Validator::make($this->update->all(), [
+                'document' => ['required', 'array']
+            ]);
+
             $content = $this->bot->telegram->downloadFile($file, 'test.json');
 
             /** @var array $hints */
@@ -743,7 +749,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                             'name' => $synonym['name']
                         ]);
                         $synonym->tag_id = $tag->id;
-                        $isSave = $synonym->save();
+                        $isSave = $isSave && $synonym->save();
                     }
                 }
             }
