@@ -150,7 +150,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         $inline_keyboard = [];
         $this->getUserState(true);
         $page = $this->updateService->getCallbackData()->page ?? 0;
-        foreach ($this->bot->hints->slice($page * 10, ($page * 10) + 10) as $hint) {
+        foreach ($this->bot->hints->slice($page * 10, 10) as $hint) {
             $inline_keyboard[] = [
                 [
                     'text'          => $hint->text,
@@ -254,7 +254,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         ];
 
         $page = $this->updateService->getCallbackData()->page ?? 0;
-        foreach ($hint->tags->slice($page * 10, ($page * 10) + 10) as $tag) {
+        foreach ($hint->tags->slice($page * 10, 10) as $tag) {
             $inline_keyboard[] = [
                 [
                     'text'          => $tag->name,
@@ -448,7 +448,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         ];
 
         $page = $this->updateService->getCallbackData()->page ?? 0;
-        foreach ($tag->synonyms->slice($page * 10, ($page * 10) + 10) as $synonym) {
+        foreach ($tag->synonyms->slice($page * 10, 10) as $synonym) {
             $inline_keyboard[] = [
                 [
                     'text'          => $synonym->name,
