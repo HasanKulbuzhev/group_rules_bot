@@ -15,7 +15,7 @@ use Throwable;
 
 class TelegramController extends Controller
 {
-    public function baseBot(Request $request)
+    public function baseBot(TelegramUpdateRequest $request)
     {
         /** @var TelegramBot $bot */
         $bot = TelegramBot::query()
@@ -68,7 +68,7 @@ class TelegramController extends Controller
         return 'ok';
     }
 
-    public function searchAnswerBot(Request $request, string $token): string
+    public function searchAnswerBot(TelegramUpdateRequest $request, string $token): string
     {
         /** @var TelegramBot $bot */
         $bot = TelegramBot::query()
