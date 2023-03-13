@@ -78,7 +78,7 @@ class TelegramBasePrivateChatService extends BaseRulePrivateChatService implemen
                     $newBot->telegram->setWebhook([
                         'url' => route('bot'. $type, ['token' => $newBot->token])
                     ]);
-                    $this->reply("Ваш бот {$newBot->username} успешно сохранён!! \n Вы можете перейти к его настройке");
+                    $this->reply("Ваш бот @{$newBot->username} успешно сохранён!! \n Вы можете перейти к его настройке");
                 }
             });
 
