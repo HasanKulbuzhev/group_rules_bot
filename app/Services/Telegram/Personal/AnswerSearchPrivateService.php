@@ -755,28 +755,28 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
             $isSave = true;
 
-            /** @var array $hint */
-            foreach ($hints as $hint) {
-                $hint = new Hint([
-                    'text' => $hint['text']
+            /** @var array $hintValue */
+            foreach ($hints as $hintValue) {
+                $hint = $this->bot->hints()->where('text', $hintValue['text'])->first() ?? new Hint([
+                    'text' => $hintValue['text']
                 ]);
                 $hint->owner_id = $this->bot->admin->id;
                 $isSave = $isSave && $hint->save();
                 $isSave = $isSave && $this->bot->hints()->save($hint);
 
-                /** @var array $tag */
-                foreach ($hint['tags'] as $tag) {
-                    $tag = new Tag([
-                        'name' => $tag['name']
-                    ]);
+                /** @var array $tagValue */
+                foreach ($hintValue['tags'] as $tagValue) {
+                    $tag = $hint->tags()->where('name', $tagValue['name'])->first() ?? new Tag([
+                            'name' => $tagValue['name']
+                        ]);
 
                     $isSave = $isSave && $tag->save();
                     $isSave = $isSave && $hint->tags()->save($tag);
 
-                    /** @var array $synonym */
-                    foreach ($tag['synonyms'] as $synonym) {
-                        $synonym = new TagSynonym([
-                            'name' => $synonym['name']
+                    /** @var array $synonymValue */
+                    foreach ($tagValue['synonyms'] as $synonymValue) {
+                        $synonym = $tag->synonyms()->where('name', $synonymValue['name'])->first() ?? new TagSynonym([
+                            'name' => $synonymValue['name']
                         ]);
                         $synonym->tag_id = $tag->id;
                         $isSave = $isSave && $synonym->save();
