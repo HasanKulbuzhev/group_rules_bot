@@ -75,7 +75,11 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
     public function reply(string $message, ?array $inline_keyboard = null, ?InputFile $file = null): void
     {
-        if (!empty($inline_keyboard)) {
+        if (
+            !empty($inline_keyboard) &&
+            ($this->updateService->getCallbackData()->method !== '/help') &&
+            ($this->updateService->data()->message->text !== '/help')
+        ) {
             $inline_keyboard[] = [
                 [
                     'text'          => 'На Главную',
