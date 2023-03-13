@@ -73,6 +73,22 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         }
     }
 
+    public function reply(string $message, ?array $inline_keyboard = null, ?InputFile $file = null): void
+    {
+        if (!empty($inline_keyboard)) {
+            $inline_keyboard[] = [
+                [
+                    'text'          => 'На Главную',
+                    'callback_data' => json_encode([
+                        'method' => '/help',
+                    ]),
+                ],
+            ];
+        }
+
+        parent::reply($message, $inline_keyboard, $file);
+    }
+
     public function other(): bool
     {
         $hints = $this->bot->hints()->ofTagName($this->updateService->data()->message->text)->get();
