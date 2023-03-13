@@ -711,7 +711,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     public function restore(): bool
     {
         if ($this->hasUserState()) {
-            $validator = \Validator::make($this->update->toArray(), [
+            $validator = \Validator::make($this->update->message->toArray(), [
                 'document' => ['required', 'array']
             ]);
 
