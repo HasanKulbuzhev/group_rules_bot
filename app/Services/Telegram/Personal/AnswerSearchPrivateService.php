@@ -716,6 +716,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             ]);
 
             if ($validator->fails()) {
+                $this->reply('Невалидный документ');
                 throw new Exception('Невалидный документ');
             }
 
@@ -730,6 +731,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             $hints = json_decode($content, true);
 
             if (is_null($hints)) {
+                $this->reply('Невалидный документ');
                 throw new Exception('Невалидный документ');
             }
 
