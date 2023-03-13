@@ -8,15 +8,18 @@ use App\Interfaces\Base\BaseService;
 use App\Services\Base\Telegram\BaseRuleChatService;
 use Arr;
 use Cache;
+use Telegram\Bot\FileUpload\InputFile;
 
 class BaseRulePrivateChatService extends BaseRuleChatService implements BaseService
 {
+    protected array $allow_types = [
+        MessageTypeEnum::TEXT,
+        MessageTypeEnum::CALLBACK_QUERY,
+    ];
+
     public function run(): bool
     {
-        if (
-            !in_array(MessageTypeEnum::TEXT, $this->updateService->getMessageInnerTypes()) &&
-            !in_array(MessageTypeEnum::CALLBACK_QUERY, $this->updateService->getMessageInnerTypes())
-        ) {
+        if ($this->allowTypes()) {
             return true;
         }
 
@@ -29,14 +32,14 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
         }
 
         if (
-        in_array(MessageTypeEnum::COMMAND, $this->updateService->getMessageInnerTypes()) &&
-        is_null($method)
+            in_array(MessageTypeEnum::COMMAND, $this->updateService->getMessageInnerTypes()) &&
+            is_null($method)
         ) {
             $method = Arr::get($this->rules, $this->updateService->data()->message->text);
         }
 
         if ($this->hasUserState() && is_null($method)) {
-            $rule   = $this->getUserState();
+            $rule = $this->getUserState();
             $method = Arr::get($this->rules, $rule);
         }
 
@@ -58,33 +61,57 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
         return true;
     }
 
+    protected function allowTypes(): bool
+    {
+        foreach ($this->allow_types as $type) {
+            if(!in_array($type, $this->updateService->getMessageInnerTypes())) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     protected function other(): bool
     {
         return true;
     }
 
     /**
-     * @param string     $message
-     * @param array|null $inline_keyboard
-     * @throws \Telegram\Bot\Exceptions\TelegramSDKException
-     *
-     * <code>
-     * $inline_keyboard = [
-     * [
-     * [
+     * @param string         $message
+     * @param array|null     $inline_keyboard
+     * @param InputFile|null $file
+     * @throws \Telegram\Bot\Exceptions\TelegramSDKException <code>
+     *       $inline_keyboard = [
+     *       [
+     *       [
      *       'text'                     => '',  // string - Текст кнопки
      *       'callback_data'            => '',  // string     - Название метода, который будет выполняться
-     * ]
-     * ]
-     * ]
-     * </code>
+     *       ]
+     *       ]
+     *       ]
+     *       </code>
      */
-    protected function reply(string $message, ?array $inline_keyboard = null): void
+    protected function reply(string $message, ?array $inline_keyboard = null, ?InputFile $file = null): void
     {
         $reply_markup = empty($inline_keyboard) ? null : json_encode(
             [
                 'inline_keyboard' => $inline_keyboard
             ]);
+
+        if (!is_null($file)) {
+            $this->bot->telegram->sendDocument(
+                [
+                    'chat_id'      => $this->updateService->data()->message->chat->id,
+                    'caption'      => $message,
+                    'document'     => $file,
+                    'reply_markup' => $reply_markup,
+
+                ]);
+
+            return ;
+        }
+
         foreach (mb_str_split($message, 3000) as $text) {
             $this->bot->telegram->sendMessage(
                 [

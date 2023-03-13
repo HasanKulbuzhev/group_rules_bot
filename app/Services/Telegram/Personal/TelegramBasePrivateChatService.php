@@ -26,26 +26,48 @@ class TelegramBasePrivateChatService extends BaseRulePrivateChatService implemen
 
     protected function getHelp(): bool
     {
-        $this->reply(view('base_bot_help'));
+
+        $inline_keyboard = [
+            [
+                [
+                    'text'          => 'Создать Бота для Правил Группы',
+                    'callback_data' => json_encode([
+                        'method' => '/create_group_rule_bot',
+                        'id'     => null,
+                        'value'  => null,
+                    ]),
+                ],
+                [
+                    'text'          => 'Создать Бота для АвтоОтветов',
+                    'callback_data' => json_encode([
+                        'method' => '/create_search_answer_bot',
+                        'id'     => null,
+                        'value'  => null,
+                    ]),
+                ],
+            ]
+        ];
+
+        $this->reply(view('base_bot_help'), $inline_keyboard);
 
         return true;
     }
 
     protected function createBot(int $type): bool
     {
-        $token = $this->update->message->text;
+        $token = $this->updateService->data()->message->text;
 
         $newBot = TelegramBot::query()->where('token', $token)->first() ?? new TelegramBot();
         $newBot->token = $token;
         if ($newBot->telegram->isValidToken()) {
             \DB::transaction(function () use ($newBot, $type) {
-                $user = TelegramUser::query()->where('telegram_id', $this->update->message->from->id)->first();
+                $user = TelegramUser::query()->where('telegram_id', $this->updateService->data()->message->from->id)->first();
                 if (is_null($user)) {
                     $user = new TelegramUser([
                         'telegram_id' => $this->updateService->getChatId()
                     ]);
                 }
-                $isSave = (new CreateTelegramUserService($user, $this->update->getChat()->toArray()))->run();
+                $isSave = (new CreateTelegramUserService($user, $this->updateService->data()->getChat()->toArray()))->run();
                 $newBot->telegram_user_id = $user->id;
 
                 $isSave = $isSave && (new CreateTelegramBotService($newBot, [
@@ -56,7 +78,7 @@ class TelegramBasePrivateChatService extends BaseRulePrivateChatService implemen
                     $newBot->telegram->setWebhook([
                         'url' => route('bot'. $type, ['token' => $newBot->token])
                     ]);
-                    $this->reply("Ваш бот {$newBot->username} успешно сохранён!! \n Вы можете перейти к его настройке");
+                    $this->reply("Ваш бот @{$newBot->username} успешно сохранён!! \n Вы можете перейти к его настройке");
                 }
             });
 

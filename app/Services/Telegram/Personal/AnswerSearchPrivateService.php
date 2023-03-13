@@ -14,10 +14,18 @@ use App\Models\TelegramUser;
 use App\Services\Telegram\Update\TelegramUpdateService;
 use App\Services\TelegramUser\CreateTelegramUserService;
 use Exception;
-use Cache;
+use Illuminate\Support\Facades\Cache;
+use Telegram\Bot\FileUpload\InputFile;
+use Telegram\Bot\Objects\File;
 
 class AnswerSearchPrivateService extends BaseRulePrivateChatService implements BaseService
 {
+    protected array $allow_types = [
+        MessageTypeEnum::TEXT,
+        MessageTypeEnum::CALLBACK_QUERY,
+        MessageTypeEnum::DOCUMENT,
+    ];
+
     protected array $rules = [
         '/start'               => 'getHelp',
         '/help'                => 'getHelp',
@@ -39,6 +47,8 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         '/start_setting'       => 'setAnswer',
         '/set_word'            => 'setWord',
         '/set_synonyms'        => 'setSynonyms',
+        '/get_backup'          => 'getBackup',
+        '/restore'             => 'restore',
         MessageTypeEnum::OTHER => 'other',
     ];
 
@@ -55,6 +65,8 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             $text = $exception->getMessage();
             $allErrorText = json_encode($exception->getTrace());
             $this->reply('Произошло что-то не так');
+
+            $this->resetUserState();
 
             throw new Exception("
                 С ботом @{$this->bot->username} произошло что-то не так. \n
@@ -116,6 +128,24 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                     ]),
                 ],
             ],
+            [
+                [
+                    'text'          => 'Сохранить настройки в файл',
+                    'callback_data' => json_encode([
+                        'method' => '/get_backup',
+                        'id'     => 'null',
+                        'value'  => 'null',
+                    ]),
+                ],
+                [
+                    'text'          => 'Импортировать настройки из файла',
+                    'callback_data' => json_encode([
+                        'method' => '/restore',
+                        'id'     => 'null',
+                        'value'  => 'null',
+                    ]),
+                ],
+            ]
         ];
         $this->reply("введите
              /start_setting начать быструю настройку \n
@@ -160,7 +190,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             ]
         ];
 
-        if ( empty($text) ) $text = "вы пока не настроили бот";
+        if (empty($text)) $text = "вы пока не настроили бот";
 
         $this->reply($text, $inline_keyboard);
 
@@ -170,12 +200,12 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     public function getHint(?Hint $hint = null): bool
     {
         $updateService = new TelegramUpdateService($this->update);
-        if ( is_null($hint) ) {
+        if (is_null($hint)) {
             /** @var Hint $hint */
             $hint = $this->bot->hints()->find($updateService->getCallbackData()->id);
         }
 
-        if ( is_null($hint) ) {
+        if (is_null($hint)) {
             $this->reply('Ответ (hint) не найден');
         }
 
@@ -246,7 +276,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
     public function addHint(): bool
     {
-        if ( $this->getUserState() === '/add_hint' ) {
+        if ($this->getUserState() === '/add_hint') {
             $hint = new Hint([
                 'text' => $this->updateService->data()->message->text
             ]);
@@ -254,7 +284,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             $isSave = $hint->save();
             $isSave = $isSave && $this->bot->hints()->save($hint);
 
-            if ( $isSave ) {
+            if ($isSave) {
                 $this->reply("
                     Ответ успешно сохранен! \n
                 ");
@@ -285,7 +315,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             $hint->text = $this->update->message->text;
             $isSave = $hint->save();
 
-            if ( $isSave ) {
+            if ($isSave) {
                 $this->reply("
                 Ответ успешно сохранен! \n
                 ");
@@ -328,7 +358,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
     public function getTag(?Tag $tag = null): bool
     {
-        if ( is_null($tag) ) {
+        if (is_null($tag)) {
             /** @var Tag $tag */
             $tag = Tag::query()
                 ->find($this->updateService->getCallbackData()->id);
@@ -337,7 +367,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         /** @var Hint $hint */
         $hint = $tag->hints()->ofBot($this->bot->id)->first();
 
-        if ( is_null($tag) ) {
+        if (is_null($tag)) {
             $this->reply('Ключевое слово (tag) не найдено');
             return true;
         }
@@ -404,7 +434,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
     public function addTag(): bool
     {
-        if ( $this->getUserState() === '/add_tag' ) {
+        if ($this->getUserState() === '/add_tag') {
             /** @var Hint $hint */
             $hint = Cache::get($this->getUserStatePath(true));
             $tag = new Tag([
@@ -413,7 +443,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             $isSave = $tag->save();
             $isSave = $isSave && $hint->tags()->save($tag);
 
-            if ( $isSave ) {
+            if ($isSave) {
                 $this->reply("
                 Ключевое слово успешно сохранено! \n
                 ");
@@ -435,13 +465,13 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
     public function updateTag(): bool
     {
-        if ( $this->hasUserState() ) {
+        if ($this->hasUserState()) {
             /** @var Tag $tag */
             $tag = Cache::get($this->getUserStatePath(true));
             $tag->name = $this->updateService->data()->message->text;
             $isSave = $tag->save();
 
-            if ( $isSave ) {
+            if ($isSave) {
                 $this->reply("
                 Ключевое слово успешно сохранено! \n
                 ");
@@ -485,7 +515,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         $synonym = $synonym ?? TagSynonym::query()
                 ->find($this->updateService->getCallbackData()->id);
 
-        if ( is_null($synonym) ) {
+        if (is_null($synonym)) {
             $this->reply('слово (synonym) не найдено');
         }
 
@@ -526,7 +556,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
     public function addSynonym(): bool
     {
-        if ( $this->getUserState() === '/add_synonym' ) {
+        if ($this->getUserState() === '/add_synonym') {
             /** @var Tag $tag */
             $tag = Cache::get($this->getUserStatePath(true));
 
@@ -536,7 +566,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             $synonym->tag_id = $tag->id;
             $isSave = $synonym->save();
 
-            if ( $isSave ) {
+            if ($isSave) {
                 $this->reply("
                 Всё успешно сохранено! \n
                 ");
@@ -561,13 +591,13 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
     public function updateSynonym(): bool
     {
-        if ( $this->hasUserState() ) {
+        if ($this->hasUserState()) {
             /** @var TagSynonym $synonym */
             $synonym = Cache::get($this->getUserStatePath(true));
             $synonym->name = $this->updateService->data()->message->text;
             $isSave = $synonym->save();
 
-            if ( $isSave ) {
+            if ($isSave) {
                 $this->reply("
                 Слово успешно сохранено! \n
                 ");
@@ -603,7 +633,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
     protected function setAnswer(): bool
     {
-        if ( $this->hasUserState() ) {
+        if ($this->hasUserState()) {
             $hint = new Hint([
                 'text' => $this->updateService->data()->message->text
             ]);
@@ -611,7 +641,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             $isSave = $hint->save();
             $isSave = $isSave && $this->bot->hints()->save($hint);
 
-            if ( $isSave ) {
+            if ($isSave) {
                 $this->reply("
                 Ответ успешно сохранен! \n
                 Теперь введите слово, по которому будет отдаваться ответ.
@@ -632,7 +662,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
     protected function setWord(): bool
     {
-        if ( $this->hasUserState() ) {
+        if ($this->hasUserState()) {
             /** @var Hint $hint */
             $hint = Cache::get($this->getUserStatePath(true));
             $tag = new Tag([
@@ -641,7 +671,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             $isSave = $tag->save();
             $isSave = $isSave && $hint->tags()->save($tag);
 
-            if ( $isSave ) {
+            if ($isSave) {
                 $this->reply("
                 Ключевое слово успешно сохранено! \n
                 Теперь бот, будет отправлять ответ каждый раз, когда в сообщении будет присутствовать это слово \n
@@ -662,10 +692,10 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
     protected function setSynonyms(): bool
     {
-        if ( $this->hasUserState() ) {
+        if ($this->hasUserState()) {
             $isSave = true;
 
-            if ( $this->updateService->data()->message->text !== '/skip' ) {
+            if ($this->updateService->data()->message->text !== '/skip') {
                 /** @var Tag $tag */
                 $tag = Cache::get($this->getUserStatePath(true));
 
@@ -678,7 +708,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                 }
             }
 
-            if ( $isSave ) {
+            if ($isSave) {
                 $this->reply("
                 Всё успешно сохранено! \n
                 Можете протестировать бота
@@ -690,6 +720,95 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             return $isSave;
         } else {
             $this->reply('Для начала нужно указать слово');
+
+            return true;
+        }
+    }
+
+    public function getBackup(): bool
+    {
+        $values = json_encode($this->bot->hints()->with('tags.synonyms')->get()->toArray());
+
+        $this->reply(
+            'Это ваш файл бекап, вы можете использовать его, чтобы передать данные с этого бота на другой',
+            [],
+            InputFile::createFromContents($values, 'backup.json')
+        );
+
+        return true;
+    }
+
+    public function restore(): bool
+    {
+        if ($this->hasUserState()) {
+            $validator = \Validator::make($this->update->message->toArray(), [
+                'document' => ['required', 'array']
+            ]);
+
+            if ($validator->fails()) {
+                $this->reply('Невалидный документ');
+                throw new Exception('Невалидный документ');
+            }
+
+            /** @var File $file */
+            $file = $this->bot->telegram->getFile([
+                'file_id' => $this->updateService->data()->message->document->fileId
+            ]);
+
+            $content = $this->bot->telegram->downloadFile($file, 'test.json');
+
+            /** @var array $hints */
+            $hints = json_decode($content, true);
+
+            if (is_null($hints)) {
+                $this->reply('Невалидный документ');
+                throw new Exception('Невалидный документ');
+            }
+
+            $isSave = true;
+
+            /** @var array $hint */
+            foreach ($hints as $hint) {
+                $hint = new Hint([
+                    'text' => $hint['text']
+                ]);
+                $hint->owner_id = $this->bot->admin->id;
+                $isSave = $isSave && $hint->save();
+                $isSave = $isSave && $this->bot->hints()->save($hint);
+
+                /** @var array $tag */
+                foreach ($hint['tags'] as $tag) {
+                    $tag = new Tag([
+                        'name' => $tag['name']
+                    ]);
+
+                    $isSave = $isSave && $tag->save();
+                    $isSave = $isSave && $hint->tags()->save($tag);
+
+                    /** @var array $synonym */
+                    foreach ($tag['synonyms'] as $synonym) {
+                        $synonym = new TagSynonym([
+                            'name' => $synonym['name']
+                        ]);
+                        $synonym->tag_id = $tag->id;
+                        $isSave = $isSave && $synonym->save();
+                    }
+                }
+            }
+
+            if ($isSave) {
+                $this->reply('Всё успешно сохранено!');
+            } else {
+                $this->reply('Ошибка. Что-то пошло не так!');
+            }
+
+            $this->resetUserState();
+
+            return $isSave;
+        } else {
+            $this->reply('Отправьте документ с бекапом в формате .json');
+
+            $this->setUserState('/restore');
 
             return true;
         }

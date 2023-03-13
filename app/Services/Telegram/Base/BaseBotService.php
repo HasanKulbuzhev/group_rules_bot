@@ -22,9 +22,6 @@ class BaseBotService extends BaseRuleChatService implements BaseService
             return true;
         }
 
-        /** @var BaseService $ruleService */
-        $ruleService = new $this->rules[$chatType]($this->bot, $this->update);
-
-        return $ruleService->run();
+        return $this->runService($chatType);
     }
 }
