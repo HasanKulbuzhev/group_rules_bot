@@ -11,6 +11,7 @@ use Exception;
 use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use Telegram\Bot\FileUpload\InputFile;
+use Telegram\Bot\HttpClients\GuzzleHttpClient;
 use Telegram\Bot\Objects\Update;
 use Throwable;
 
@@ -105,6 +106,17 @@ class TelegramController extends Controller
             ->where('type', TelegramBotTypeEnum::BASE)
             ->with('hints.tags')
             ->first();
+        dd(Hint::query()->with('tags.synonyms')->get()->toArray());
+        $file = $bot->telegram->getFile([
+            'file_id' => 'BQACAgIAAxkBAAIJhGQPJvBY53Qv2eAHsi5NRl2HuLKTAAJQKAAC-655SDOoIKqyjZKpLwQ'
+        ]);
+//        $bot->telegram->downloadFile($file, 'test.json')
+        $test = (new GuzzleHttpClient())->send(sprintf('https://api.telegram.org/file/bot%s/%s', $bot->token, $file->filePath), 'GET');
+        $content = $test->getBody()->getContents();
+        dd(json_decode($content, true));
+//        dd($test);
+        dd($test->getBody()->getContents());
+        dd($bot->telegram->sendDocument($file, 'test.json'));
 
         dd(1);
 

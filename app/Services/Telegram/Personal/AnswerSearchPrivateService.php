@@ -11,8 +11,9 @@ use App\Models\Tag\Tag;
 use App\Models\TagSynonym\TagSynonym;
 use App\Services\Telegram\Update\TelegramUpdateService;
 use Exception;
-use Cache;
+use Illuminate\Support\Facades\Cache;
 use Telegram\Bot\FileUpload\InputFile;
+use Telegram\Bot\Objects\File;
 
 class AnswerSearchPrivateService extends BaseRulePrivateChatService implements BaseService
 {
@@ -687,7 +688,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
     public function getBackup()
     {
-        $values = json_encode($this->bot->load('hints.tags.synonyms')->toArray());
+        $values = json_encode($this->bot->hints()->with('tags.synonyms')->get()->toArray());
 
         $this->reply(
             'Это ваш файл бекап, вы можете использовать его, чтобы передать данные с этого бота на другой',
@@ -696,8 +697,64 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         );
     }
 
-    public function restore()
+    public function restore(): bool
     {
-        $this->updateService;
+        if ($this->hasUserState()) {
+            /** @var File $file */
+            $file = $this->bot->telegram->getFile([
+                'file_id' => $this->updateService->data()->message->document->fileId
+            ]);
+
+            $content = $this->bot->telegram->downloadFile($file, 'test.json');
+
+            /** @var array $hints */
+            $hints = json_decode($content, true);
+
+            if (is_null($hints)) {
+                throw new Exception('Невалидный документ');
+            }
+
+            $isSave = true;
+
+            /** @var array $hint */
+            foreach ($hints as $hint) {
+                $hint = new Hint([
+                    'text' => $hint['text']
+                ]);
+                $hint->owner_id = $this->bot->admin->id;
+                $isSave = $isSave && $hint->save();
+                $isSave = $isSave && $this->bot->hints()->save($hint);
+
+                /** @var array $tag */
+                foreach ($hint['tags'] as $tag) {
+                    $tag = new Tag([
+                        'name' => $this->updateService->data()->message->text
+                    ]);
+                    $isSave = $isSave && $tag->save();
+                    $isSave = $isSave && $hint->tags()->save($tag);
+
+                    /** @var array $synonym */
+                    foreach ($tag['synonyms'] as $synonym) {
+                        $synonym = new TagSynonym([
+                            'name' => $this->updateService->data()->message->text
+                        ]);
+                        $synonym->tag_id = $tag->id;
+                        $isSave = $synonym->save();
+                    }
+                }
+            }
+
+            if ($isSave) {
+                $this->reply('Всё успешно сохранено!');
+            } else {
+                $this->reply('Ошибка. Что-то пошло не так!');
+            }
+
+            return $isSave;
+        } else {
+            $this->reply('Отправьте документ с бекапом в формате .json');
+
+            return true;
+        }
     }
 }
