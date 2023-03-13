@@ -710,7 +710,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                 'file_id' => $this->updateService->data()->message->document->fileId
             ]);
 
-            \Validator::make($this->update->all(), [
+            \Validator::make($this->update->toArray(), [
                 'document' => ['required', 'array']
             ]);
 
