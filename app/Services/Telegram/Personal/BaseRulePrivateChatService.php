@@ -19,7 +19,7 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
 
     public function run(): bool
     {
-        if ($this->allow_types) {
+        if ($this->allowTypes()) {
             return true;
         }
 
