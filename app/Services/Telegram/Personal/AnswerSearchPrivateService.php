@@ -116,6 +116,24 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                     ]),
                 ],
             ],
+            [
+                [
+                    'text'          => 'Сохранить настройки в файл',
+                    'callback_data' => json_encode([
+                        'method' => '/get_backup',
+                        'id'     => 'null',
+                        'value'  => 'null',
+                    ]),
+                ],
+                [
+                    'text'          => 'Импортировать настройки из файла',
+                    'callback_data' => json_encode([
+                        'method' => '/get_backup',
+                        'id'     => 'null',
+                        'value'  => 'null',
+                    ]),
+                ],
+            ]
         ];
         $this->reply("введите
              /start_setting начать быструю настройку \n
