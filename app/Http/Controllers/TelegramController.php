@@ -9,7 +9,10 @@ use App\Models\Tag\Tag;
 use App\Services\Telegram\RuleBotService;
 use App\Models\TelegramBot;
 use Exception;
+use Illuminate\Http\File;
 use Illuminate\Http\Request;
+use Telegram\Bot\FileUpload\InputFile;
+use Telegram\Bot\HttpClients\GuzzleHttpClient;
 use Telegram\Bot\Objects\Update;
 use Throwable;
 
@@ -32,7 +35,7 @@ class TelegramController extends Controller
             $baseBot = TelegramBot::query()->ofBaseBot()->first();
             $baseBot->telegram->sendMessage([
                 'chat_id' => config('telegram.bots.my_account.id'),
-                'text' => (string)$e->getMessage()
+                'text'    => (string)$e->getMessage()
             ]);
 //            throw $e;
         }
@@ -58,7 +61,7 @@ class TelegramController extends Controller
             $baseBot = TelegramBot::query()->ofBaseBot()->first();
             $baseBot->telegram->sendMessage([
                 'chat_id' => config('telegram.bots.my_account.id'),
-                'text' => substr($e->getMessage(), 0, 3000) . "\n "
+                'text'    => substr($e->getMessage(), 0, 3000) . "\n "
             ]);
 
             return 'error';
@@ -86,7 +89,7 @@ class TelegramController extends Controller
             $baseBot = TelegramBot::query()->ofBaseBot()->first();
             $baseBot->telegram->sendMessage([
                 'chat_id' => config('telegram.bots.my_account.id'),
-                'text' => substr($e->getMessage(), 0, 3000) . "\n "
+                'text'    => substr($e->getMessage(), 0, 3000) . "\n "
             ]);
 
             return 'error';
@@ -101,7 +104,23 @@ class TelegramController extends Controller
         /** @var TelegramBot $bot */
         $bot = TelegramBot::query()
             ->where('token', config('telegram.bots.mybot.token'))
-            ->where('type', TelegramBotTypeEnum::BASE)->first();
+            ->where('type', TelegramBotTypeEnum::BASE)
+            ->with('hints.tags')
+            ->first();
+        dd(Hint::query()->with('tags.synonyms')->get()->toArray());
+        $file = $bot->telegram->getFile([
+            'file_id' => 'BQACAgIAAxkBAAIJhGQPJvBY53Qv2eAHsi5NRl2HuLKTAAJQKAAC-655SDOoIKqyjZKpLwQ'
+        ]);
+//        $bot->telegram->downloadFile($file, 'test.json')
+        $test = (new GuzzleHttpClient())->send(sprintf('https://api.telegram.org/file/bot%s/%s', $bot->token, $file->filePath), 'GET');
+        $content = $test->getBody()->getContents();
+        dd(json_decode($content, true));
+//        dd($test);
+        dd($test->getBody()->getContents());
+        dd($bot->telegram->sendDocument($file, 'test.json'));
+
+        dd(1);
+
 //        $update = new Update($request->post());
 //        $hint = new Hint([
 //            'text' => 'asdfasdf' . random_int(1, 10000)
@@ -129,21 +148,21 @@ class TelegramController extends Controller
             'inline_keyboard' => [
                 [
                     [
-                        'text' => 'text 1',
+                        'text'          => 'text 1',
                         'callback_data' => 'test',
                     ],
                     [
-                        'text' => 'text 2',
+                        'text'          => 'text 2',
                         'callback_data' => 'test2',
                     ],
                     [
-                        'text' => 'text 2',
+                        'text'          => 'text 2',
                         'callback_data' => 'test2',
                     ],
                 ],
                 [
                     [
-                        'text' => 'text 2',
+                        'text'          => 'text 2',
                         'callback_data' => 'test2',
                     ],
                 ],
@@ -151,8 +170,8 @@ class TelegramController extends Controller
         ]);
 
         $bot->telegram->sendMessage([
-            'chat_id' => config('telegram.bots.mybot.admin'),
-            'text' => (string)json_encode($request->post()),
+            'chat_id'      => config('telegram.bots.mybot.admin'),
+            'text'         => (string)json_encode($request->post()),
             'reply_markup' => $inline_keyboard,
         ]);
 

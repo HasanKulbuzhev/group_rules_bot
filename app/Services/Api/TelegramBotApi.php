@@ -3,7 +3,11 @@
 namespace App\Services\Api;
 
 use Exception;
+use InvalidArgumentException;
 use Telegram\Bot\Api;
+use Telegram\Bot\HttpClients\GuzzleHttpClient;
+use Telegram\Bot\Objects\BaseObject;
+use Telegram\Bot\Objects\File;
 
 class TelegramBotApi extends Api
 {
@@ -40,5 +44,34 @@ class TelegramBotApi extends Api
         } catch (Exception $exception) {
             return false;
         }
+    }
+
+    public function downloadFile($file, string $filename): string
+    {
+        $originalFilename = null;
+        if (! $file instanceof File) {
+            if ($file instanceof BaseObject) {
+                $originalFilename = $file->get('file_name');
+
+                // Try to get file_id from the object or default to the original param.
+                $file = $file->get('file_id');
+            }
+
+            if (! is_string($file)) {
+                throw new InvalidArgumentException(
+                    'Invalid $file param provided. Please provide one of file_id, File or Response object containing file_id'
+                );
+            }
+
+            $file = $this->getFile(['file_id' => $file]);
+        }
+
+        $response = (new GuzzleHttpClient())->send(sprintf('https://api.telegram.org/file/bot%s/%s', $this->getToken(), $file->filePath), 'GET');
+
+        if (!$response->withStatus(200)) {
+            return '';
+        }
+
+        return $response->getBody()->getContents();
     }
 }
