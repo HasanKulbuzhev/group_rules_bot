@@ -128,7 +128,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                 [
                     'text'          => 'Импортировать настройки из файла',
                     'callback_data' => json_encode([
-                        'method' => '/get_backup',
+                        'method' => '/restore',
                         'id'     => 'null',
                         'value'  => 'null',
                     ]),
