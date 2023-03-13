@@ -95,6 +95,8 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
                     'reply_markup' => $reply_markup,
 
                 ]);
+
+            return ;
         }
 
         foreach (mb_str_split($message, 3000) as $text) {
