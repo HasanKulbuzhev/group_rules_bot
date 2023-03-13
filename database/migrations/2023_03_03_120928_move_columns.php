@@ -14,7 +14,7 @@ class MoveColumns extends Migration
     public function up()
     {
         Schema::table('tags', function (Blueprint $table) {
-            $table->string('name')->unique(false)->nullable()->change();
+            $table->dropUnique('tags_name_unique');
         });
     }
 
@@ -25,8 +25,5 @@ class MoveColumns extends Migration
      */
     public function down()
     {
-        Schema::table('tags', function (Blueprint $table) {
-            $table->string('name')->nullable()->change();
-        });
     }
 }
