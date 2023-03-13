@@ -78,7 +78,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     {
         if (
             !empty($inline_keyboard) &&
-            ($this->updateService->getCallbackData()->method !== '/help') &&
+            (optional($this->updateService->getCallbackData())->method !== '/help') &&
             ($this->updateService->data()->message->text !== '/help')
         ) {
             $inline_keyboard[] = [
