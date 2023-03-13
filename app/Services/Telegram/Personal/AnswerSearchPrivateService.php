@@ -22,7 +22,6 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         '/help'                => 'getHelp',
         '/cancel'              => 'cancel',
         '/get_setting'         => 'getSetting',
-        '/get_backup'          => 'getBackup',
         '/get_hint'            => 'getHint',
         '/add_hint'            => 'addHint',
         '/update_hint'         => 'updateHint',
@@ -39,6 +38,8 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         '/start_setting'       => 'setAnswer',
         '/set_word'            => 'setWord',
         '/set_synonyms'        => 'setSynonyms',
+        '/get_backup'          => 'getBackup',
+        '/restore'             => 'restore',
         MessageTypeEnum::OTHER => 'other',
     ];
 
