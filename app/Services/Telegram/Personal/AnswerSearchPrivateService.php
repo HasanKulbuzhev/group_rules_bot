@@ -731,15 +731,16 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                 /** @var array $tag */
                 foreach ($hint['tags'] as $tag) {
                     $tag = new Tag([
-                        'name' => $this->updateService->data()->message->text
+                        'name' => $tag['name']
                     ]);
+
                     $isSave = $isSave && $tag->save();
                     $isSave = $isSave && $hint->tags()->save($tag);
 
                     /** @var array $synonym */
                     foreach ($tag['synonyms'] as $synonym) {
                         $synonym = new TagSynonym([
-                            'name' => $this->updateService->data()->message->text
+                            'name' => $synonym['name']
                         ]);
                         $synonym->tag_id = $tag->id;
                         $isSave = $synonym->save();
