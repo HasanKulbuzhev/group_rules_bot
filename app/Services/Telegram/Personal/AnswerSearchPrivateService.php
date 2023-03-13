@@ -753,6 +753,8 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                 $this->reply('Ошибка. Что-то пошло не так!');
             }
 
+            $this->resetUserState();
+
             return $isSave;
         } else {
             $this->reply('Отправьте документ с бекапом в формате .json');
