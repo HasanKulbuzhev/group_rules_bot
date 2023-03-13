@@ -28,6 +28,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         '/help'                => 'getHelp',
         '/cancel'              => 'cancel',
         '/get_setting'         => 'getSetting',
+        'remove_all'           => 'removeAll',
         '/get_hint'            => 'getHint',
         '/add_hint'            => 'addHint',
         '/update_hint'         => 'updateHint',
@@ -153,6 +154,16 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                         'value'  => 'null',
                     ]),
                 ],
+            ],
+            [
+                [
+                    'text'          => 'Очистить все данные',
+                    'callback_data' => json_encode([
+                        'method' => '/remove_all',
+                        'id'     => 'null',
+                        'value'  => 'null',
+                    ]),
+                ],
             ]
         ];
         $this->reply("введите
@@ -228,6 +239,25 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         $this->reply($text, $inline_keyboard);
 
         return true;
+    }
+
+    public function removeAll(): bool
+    {
+        $isDelete = true;
+
+        foreach ($this->bot->hints as $hint) {
+            $hint->tags()->delete();
+            $isDelete = $isDelete && $hint->delete();
+        }
+
+        if ($isDelete) {
+            $this->reply('Успешно удалено');
+        } else {
+            $this->reply('Что-то пошло не так');
+            throw new Exception('Ошибка удаления');
+        }
+
+        return $isDelete;
     }
 
     public function getHint(?Hint $hint = null): bool
@@ -518,7 +548,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                     'method' => '/get_tag',
                     'id'     => $tag->id,
                     'value'  => $tag->id,
-                    'page'  => $page + 1,
+                    'page'   => $page + 1,
                 ])
             ],
         ];
