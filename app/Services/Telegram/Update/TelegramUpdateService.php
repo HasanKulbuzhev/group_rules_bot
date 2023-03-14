@@ -30,7 +30,7 @@ class TelegramUpdateService
 
     public function getCallbackData(): object
     {
-        return json_decode($this->data()->data);
+        return json_decode($this->data()->data ?? '{}');
     }
 
     public function getFromId(): int
