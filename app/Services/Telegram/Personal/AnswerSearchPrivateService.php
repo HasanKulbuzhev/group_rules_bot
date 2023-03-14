@@ -77,7 +77,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     public function reply(string $message, ?array $inline_keyboard = null, ?InputFile $file = null): void
     {
         if (
-            !empty($inline_keyboard) &&
+            is_array($inline_keyboard) &&
             (optional($this->updateService->getCallbackData())->method !== '/help') &&
             ($this->updateService->data()->message->text !== '/help')
         ) {
@@ -179,8 +179,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     {
         $text = 'Список ваших ответов';
         $inline_keyboard = [];
-        $this->getUserState(true);
-        $page = $this->updateService->getCallbackData()->page ?? 0;
+        $page = optional($this->updateService->getCallbackData())->page ?? 0;
         foreach ($this->bot->hints->slice($page * 10, 10) as $hint) {
             $inline_keyboard[] = [
                 [
@@ -303,7 +302,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             ]
         ];
 
-        $page = $this->updateService->getCallbackData()->page ?? 0;
+        $page = optional($this->updateService->getCallbackData())->page ?? 0;
         foreach ($hint->tags->slice($page * 10, 10) as $tag) {
             $inline_keyboard[] = [
                 [
@@ -497,7 +496,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             ]
         ];
 
-        $page = $this->updateService->getCallbackData()->page ?? 0;
+        $page = optional($this->updateService->getCallbackData())->page ?? 0;
         foreach ($tag->synonyms->slice($page * 10, 10) as $synonym) {
             $inline_keyboard[] = [
                 [

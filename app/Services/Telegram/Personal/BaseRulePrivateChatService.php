@@ -92,7 +92,7 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
      *       ]
      *       </code>
      */
-    protected function reply(string $message, ?array $inline_keyboard = null, ?InputFile $file = null): void
+    protected function reply(string $message, ?array $inline_keyboard = null, ?InputFile $file = null)
     {
         $reply_markup = empty($inline_keyboard) ? null : json_encode(
             [
@@ -106,7 +106,6 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
                     'caption'      => $message,
                     'document'     => $file,
                     'reply_markup' => $reply_markup,
-
                 ]);
 
             return ;
