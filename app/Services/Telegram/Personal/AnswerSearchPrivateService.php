@@ -1027,6 +1027,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             if ($isSave) {
                 $this->reply('Поздравляем, теперь вы админ этого бота.');
                 $this->getHelp();
+                $this->resetUserState();
                 $this->deleteSecretCode();
             }
 
@@ -1034,7 +1035,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         } else {
             $this->reply('Введите токен');
 
-            $this->setUserState('/activateAdmin');
+            $this->setUserState('/activate_admin');
 
             return true;
         }
