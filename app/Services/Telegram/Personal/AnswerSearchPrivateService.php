@@ -4,7 +4,6 @@
 namespace App\Services\Telegram\Personal;
 
 
-use App\Enums\Cache\CacheTypeEnum;
 use App\Enums\Telegram\MessageTypeEnum;
 use App\Interfaces\Base\BaseService;
 use App\Models\Hint\Hint;
@@ -27,28 +26,39 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     ];
 
     protected array $rules = [
-        '/start'               => 'getHelp',
-        '/help'                => 'getHelp',
-        '/cancel'              => 'cancel',
-        '/get_setting'         => 'getSetting',
-        '/get_hint'            => 'getHint',
-        '/add_hint'            => 'addHint',
-        '/update_hint'         => 'updateHint',
-        '/delete_hint'         => 'deleteHint',
-        '/get_tag'             => 'getTag',
-        '/add_tag'             => 'addTag',
-        '/update_tag'          => 'updateTag',
-        '/delete_tag'          => 'deleteTag',
-        '/get_synonym'         => 'getSynonym',
-        '/add_synonym'         => 'addSynonym',
-        '/update_synonym'      => 'updateSynonym',
-        '/delete_synonym'      => 'deleteSynonym',
-        '/add_answer'          => 'setAnswer',
-        '/start_setting'       => 'setAnswer',
-        '/set_word'            => 'setWord',
-        '/set_synonyms'        => 'setSynonyms',
-        '/get_backup'          => 'getBackup',
-        '/restore'             => 'restore',
+        '/start'          => 'getHelp',
+        '/help'           => 'getHelp',
+        '/cancel'         => 'cancel',
+        '/get_setting'    => 'getSetting',
+        '/get_hint'       => 'getHint',
+        '/add_hint'       => 'addHint',
+        '/update_hint'    => 'updateHint',
+        '/delete_hint'    => 'deleteHint',
+        '/get_tag'        => 'getTag',
+        '/add_tag'        => 'addTag',
+        '/update_tag'     => 'updateTag',
+        '/delete_tag'     => 'deleteTag',
+        '/get_synonym'    => 'getSynonym',
+        '/add_synonym'    => 'addSynonym',
+        '/update_synonym' => 'updateSynonym',
+        '/delete_synonym' => 'deleteSynonym',
+
+        // Быстрая настройка
+        '/start_setting'  => 'setAnswer',
+        '/add_answer'     => 'setAnswer',
+        '/set_word'       => 'setWord',
+        '/set_synonyms'   => 'setSynonyms',
+
+        //backup
+        '/get_backup'     => 'getBackup',
+        '/restore'        => 'restore',
+
+        // admin
+        '/get_admins'     => 'getAdmins',
+        '/add_admin'      => 'generateAdminToken',
+        '/activate_admin' => 'activateAdmin',
+        '/delete_admin'   => 'deleteAdmin',
+
         MessageTypeEnum::OTHER => 'other',
     ];
 
@@ -818,8 +828,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     {
         $inline_keyboard = [];
 
-        foreach ($this->bot->admins as $admin)
-        {
+        foreach ($this->bot->admins as $admin) {
             $inline_keyboard[] = [
                 [
                     'text'          => $admin->first_name,
@@ -846,7 +855,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         $this->reply('Список админов этого бота', $inline_keyboard);
     }
 
-    public function setActivateAdmin(): bool
+    public function activateAdmin(): bool
     {
         if ($this->bot->isAdminTelegramId($this->updateService->getChatId())) {
             return true;
@@ -865,13 +874,19 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         $isSave = (new CreateTelegramUserService($telegramUser, $this->update->getChat()->toArray()))->run();
 
         if ($this->getSecretCode() === $this->updateService->data()->message->text) {
-            $this->bot->admins()->sync($telegramUser);
+            $this->bot->admins()->syncWithoutDetaching($telegramUser);
+        }
+
+        if ($isSave) {
+            $this->reply('Поздравляем, теперь вы админ этого бота.');
+            $this->getHelp();
+            $this->deleteSecretCode();
         }
 
         return $isSave;
     }
 
-    public function addAdmins(): bool
+    public function generateAdminToken(): bool
     {
         if (!$this->bot->isAdminTelegramId($this->updateService->getChatId())) {
             return true;
@@ -896,33 +911,8 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             return true;
         }
 
-        $this->reply('Удалено');
+        $this->reply('Админ Удалён');
 
         return true;
-    }
-
-    public function hasSecretCode(): bool
-    {
-        return \Cache::has($this->getSecretCodePath());
-    }
-
-    public function getSecretCodePath(): string
-    {
-        return CacheTypeEnum::PRIVATE_RULE_TYPE . "secret_code" . ".{$this->bot->telegram_id}.{$this->updateService->data()->message->chat->id}.";
-    }
-
-    public function getSecretCode()
-    {
-        return \Cache::get($this->getSecretCodePath());
-    }
-
-    public function setSecretCode(string $code)
-    {
-        \Cache::put($this->getSecretCodePath(), $code);
-    }
-
-    public function deleteSecretCode()
-    {
-        \Cache::delete($this->getSecretCodePath());
     }
 }
