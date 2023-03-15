@@ -859,33 +859,41 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
     public function activateAdmin(): bool
     {
-        if ($this->bot->isAdminTelegramId($this->updateService->getChatId())) {
+        if ($this->hasUserState()) {
+            if ($this->bot->isAdminTelegramId($this->updateService->getChatId())) {
+                return true;
+            }
+
+            $telegramUser = TelegramUser::query()
+                ->where('telegram_id', $this->updateService->getChatId())
+                ->first();
+
+            if (is_null($telegramUser)) {
+                $telegramUser = new TelegramUser([
+                    'telegram_id' => $this->updateService->getChatId()
+                ]);
+            }
+
+            $isSave = (new CreateTelegramUserService($telegramUser, $this->update->getChat()->toArray()))->run();
+
+            if ($this->getSecretCode() === $this->updateService->data()->message->text) {
+                $this->bot->admins()->syncWithoutDetaching($telegramUser);
+            }
+
+            if ($isSave) {
+                $this->reply('Поздравляем, теперь вы админ этого бота.');
+                $this->getHelp();
+                $this->deleteSecretCode();
+            }
+
+            return $isSave;
+        } else {
+            $this->reply('Введите токен');
+
+            $this->setUserState('/activateAdmin');
+
             return true;
         }
-
-        $telegramUser = TelegramUser::query()
-            ->where('telegram_id', $this->updateService->getChatId())
-            ->first();
-
-        if (is_null($telegramUser)) {
-            $telegramUser = new TelegramUser([
-                'telegram_id' => $this->updateService->getChatId()
-            ]);
-        }
-
-        $isSave = (new CreateTelegramUserService($telegramUser, $this->update->getChat()->toArray()))->run();
-
-        if ($this->getSecretCode() === $this->updateService->data()->message->text) {
-            $this->bot->admins()->syncWithoutDetaching($telegramUser);
-        }
-
-        if ($isSave) {
-            $this->reply('Поздравляем, теперь вы админ этого бота.');
-            $this->getHelp();
-            $this->deleteSecretCode();
-        }
-
-        return $isSave;
     }
 
     public function generateAdminToken(): bool
@@ -894,7 +902,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             return true;
         }
 
-        $code = 'B' . $this->bot->telegram_user_id . '.C' . md5(time());
+        $code = 'B' . $this->bot->telegram_user_id . '.C' . md5(time()) . 'Z';
 
         $this->setSecretCode($code);
 
