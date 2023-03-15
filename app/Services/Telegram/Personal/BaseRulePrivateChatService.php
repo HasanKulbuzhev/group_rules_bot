@@ -127,7 +127,7 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
         return CacheTypeEnum::PRIVATE_RULE_TYPE . ".{$this->bot->telegram_id}.{$this->updateService->data()->message->chat->id}." . (int)$value;
     }
 
-    protected function getUserState(bool $value = false)
+    protected function getUserState(bool $value = false): array
     {
         return Cache::get($this->getUserStatePath($value));
     }
@@ -150,5 +150,30 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
         Cache::delete($this->getUserStatePath());
         if ($this->hasUserState(true))
             Cache::delete($this->getUserStatePath(true));
+    }
+
+    public function hasSecretCode(): bool
+    {
+        return \Cache::has($this->getSecretCodePath());
+    }
+
+    public function getSecretCodePath(): string
+    {
+        return CacheTypeEnum::PRIVATE_RULE_TYPE . "secret_code" . ".{$this->bot->telegram_id}.{$this->updateService->data()->getChat()->id}.";
+    }
+
+    public function getSecretCode()
+    {
+        return \Cache::get($this->getSecretCodePath());
+    }
+
+    public function setSecretCode(string $code)
+    {
+        \Cache::put($this->getSecretCodePath(), $code);
+    }
+
+    public function deleteSecretCode()
+    {
+        \Cache::delete($this->getSecretCodePath());
     }
 }

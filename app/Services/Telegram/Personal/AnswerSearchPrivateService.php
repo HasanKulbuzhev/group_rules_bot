@@ -7,7 +7,9 @@ use App\Interfaces\Base\BaseService;
 use App\Models\Hint\Hint;
 use App\Models\Tag\Tag;
 use App\Models\TagSynonym\TagSynonym;
+use App\Models\TelegramUser;
 use App\Services\Telegram\Update\TelegramUpdateService;
+use App\Services\TelegramUser\CreateTelegramUserService;
 use Exception;
 use Illuminate\Support\Facades\Cache;
 use Telegram\Bot\FileUpload\InputFile;
@@ -22,29 +24,39 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     ];
 
     protected array $rules = [
-        '/start'               => 'getHelp',
-        '/help'                => 'getHelp',
-        '/cancel'              => 'cancel',
-        '/get_setting'         => 'getSetting',
+        '/start'          => 'getHelp',
+        '/help'           => 'getHelp',
+        '/cancel'         => 'cancel',
+        '/get_setting'    => 'getSetting',
         '/remove_all'          => 'removeAll',
-        '/get_hint'            => 'getHint',
-        '/add_hint'            => 'addHint',
-        '/update_hint'         => 'updateHint',
-        '/delete_hint'         => 'deleteHint',
-        '/get_tag'             => 'getTag',
-        '/add_tag'             => 'addTag',
-        '/update_tag'          => 'updateTag',
-        '/delete_tag'          => 'deleteTag',
-        '/get_synonym'         => 'getSynonym',
-        '/add_synonym'         => 'addSynonym',
-        '/update_synonym'      => 'updateSynonym',
-        '/delete_synonym'      => 'deleteSynonym',
-        '/add_answer'          => 'setAnswer',
-        '/start_setting'       => 'setAnswer',
-        '/set_word'            => 'setWord',
-        '/set_synonyms'        => 'setSynonyms',
-        '/get_backup'          => 'getBackup',
-        '/restore'             => 'restore',
+        '/get_hint'       => 'getHint',
+        '/add_hint'       => 'addHint',
+        '/update_hint'    => 'updateHint',
+        '/delete_hint'    => 'deleteHint',
+        '/get_tag'        => 'getTag',
+        '/add_tag'        => 'addTag',
+        '/update_tag'     => 'updateTag',
+        '/delete_tag'     => 'deleteTag',
+        '/get_synonym'    => 'getSynonym',
+        '/add_synonym'    => 'addSynonym',
+        '/update_synonym' => 'updateSynonym',
+        '/delete_synonym' => 'deleteSynonym',
+
+        // Быстрая настройка
+        '/start_setting'  => 'setAnswer',
+        '/add_answer'     => 'setAnswer',
+        '/set_word'       => 'setWord',
+        '/set_synonyms'   => 'setSynonyms',
+
+        //backup
+        '/get_backup'     => 'getBackup',
+        '/restore'        => 'restore',
+
+        // admin
+        '/get_admins'     => 'getAdmins',
+        '/add_admin'      => 'generateAdminToken',
+        '/activate_admin' => 'activateAdmin',
+        '/delete_admin'   => 'deleteAdmin',
         MessageTypeEnum::OTHER => 'other',
     ];
 
@@ -60,6 +72,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         } catch (Exception $exception) {
             $text = $exception->getMessage();
             $allErrorText = json_encode($exception->getTrace());
+            $this->reply('Произошло что-то не так');
 
             $this->resetUserState();
 
@@ -130,6 +143,14 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                     'text'          => 'Быстрые настройки',
                     'callback_data' => json_encode([
                         'method' => '/add_answer',
+                        'id'     => 'null',
+                        'value'  => 'null',
+                    ]),
+                ],
+                [
+                    'text'          => 'Список Админов',
+                    'callback_data' => json_encode([
+                        'method' => '/get_admins',
                         'id'     => 'null',
                         'value'  => 'null',
                     ]),
@@ -945,5 +966,97 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
             return true;
         }
+    }
+
+    public function getAdmins()
+    {
+        $inline_keyboard = [];
+
+        foreach ($this->bot->admins as $admin) {
+            $inline_keyboard[] = [
+                [
+                    'text'          => $admin->first_name,
+                    'callback_data' => json_encode([
+                        'method' => '/get_setting',
+                        'id'     => $admin->id,
+                        'value'  => $admin->username,
+                    ]),
+                ]
+            ];
+        }
+
+        $inline_keyboard[] = [
+            [
+                'text'          => 'Добавить админа',
+                'callback_data' => json_encode([
+                    'method' => '/get_setting',
+                    'id'     => null,
+                    'value'  => null,
+                ]),
+            ]
+        ];
+
+        $this->reply('Список админов этого бота', $inline_keyboard);
+    }
+
+    public function activateAdmin(): bool
+    {
+        if ($this->bot->isAdminTelegramId($this->updateService->getChatId())) {
+            return true;
+        }
+
+        $telegramUser = TelegramUser::query()
+            ->where('telegram_id', $this->updateService->getChatId())
+            ->first();
+
+        if (is_null($telegramUser)) {
+            $telegramUser = new TelegramUser([
+                'telegram_id' => $this->updateService->getChatId()
+            ]);
+        }
+
+        $isSave = (new CreateTelegramUserService($telegramUser, $this->update->getChat()->toArray()))->run();
+
+        if ($this->getSecretCode() === $this->updateService->data()->message->text) {
+            $this->bot->admins()->syncWithoutDetaching($telegramUser);
+        }
+
+        if ($isSave) {
+            $this->reply('Поздравляем, теперь вы админ этого бота.');
+            $this->getHelp();
+            $this->deleteSecretCode();
+        }
+
+        return $isSave;
+    }
+
+    public function generateAdminToken(): bool
+    {
+        if (!$this->bot->isAdminTelegramId($this->updateService->getChatId())) {
+            return true;
+        }
+
+        $code = 'B' . $this->bot->telegram_user_id . '.C' . md5(time());
+
+        $this->setSecretCode($code);
+
+        $this->reply(view('add_bot_text', [
+            'code' => $code
+        ]));
+
+        return true;
+    }
+
+    public function deleteAdmin(): bool
+    {
+        if (!$this->bot->isAdminTelegramId($this->updateService->getChatId() ||
+            !$this->bot->hasAdmin($this->updateService->getCallbackData()->id))) {
+            $this->reply('Пользователь не найден');
+            return true;
+        }
+
+        $this->reply('Админ Удалён');
+
+        return true;
     }
 }
