@@ -65,8 +65,10 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     public function run(): bool
     {
         try {
-
-            if (!$this->bot->isAdminTelegramId($this->updateService->getChatId())) {
+            if (
+                !$this->bot->isAdminTelegramId($this->updateService->getChatId()) ||
+                $this->getMethod() !== '/activate_admin'
+            ) {
                 return $this->other();
             }
 
@@ -859,10 +861,11 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
     public function activateAdmin(): bool
     {
+        if ($this->bot->isAdminTelegramId($this->updateService->getChatId())) {
+            return true;
+        }
+
         if ($this->hasUserState()) {
-            if ($this->bot->isAdminTelegramId($this->updateService->getChatId())) {
-                return true;
-            }
 
             $telegramUser = TelegramUser::query()
                 ->where('telegram_id', $this->updateService->getChatId())
