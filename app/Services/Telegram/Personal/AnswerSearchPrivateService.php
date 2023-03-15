@@ -853,6 +853,8 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         ];
 
         $this->reply('Список админов этого бота', $inline_keyboard);
+
+        return true;
     }
 
     public function activateAdmin(): bool
