@@ -19,10 +19,17 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
 
     public function run(): bool
     {
-        if (!$this->allowTypes()) {
+        if (!$this->validate()) {
             return true;
         }
 
+        $method = $this->getMethod();
+
+        return $this->$method();
+    }
+
+    protected function getMethod(): string
+    {
         $method = null;
 
         if (
@@ -39,15 +46,21 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
         }
 
         if ($this->hasUserState() && is_null($method)) {
-            $rule = $this->getUserState();
-            $method = Arr::get($this->rules, $rule);
+            $method = Arr::get($this->rules, $this->getUserState());
         }
 
         if (is_null($method)) {
             $method = MessageTypeEnum::OTHER;
         }
 
-        return $this->$method();
+        return $method;
+    }
+
+    protected function validate(): bool
+    {
+        $isAllow = !$this->allowTypes();
+
+        return $isAllow;
     }
 
     protected function sendErrorNotAdmin(): bool
@@ -127,7 +140,7 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
         return CacheTypeEnum::PRIVATE_RULE_TYPE . ".{$this->bot->telegram_id}.{$this->updateService->data()->message->chat->id}." . (int)$value;
     }
 
-    protected function getUserState(bool $value = false): array
+    protected function getUserState(bool $value = false)
     {
         return Cache::get($this->getUserStatePath($value));
     }
