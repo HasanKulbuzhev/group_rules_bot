@@ -160,7 +160,7 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
 
     public function getSecretCodePath(): string
     {
-        return CacheTypeEnum::PRIVATE_RULE_TYPE . "secret_code" . ".{$this->bot->telegram_id}.{$this->updateService->data()->getChat()->id}.";
+        return CacheTypeEnum::PRIVATE_RULE_TYPE . 'secret_code_' . "{$this->bot->telegram_id}";
     }
 
     public function getSecretCode()
