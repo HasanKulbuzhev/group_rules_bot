@@ -968,7 +968,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         }
     }
 
-    public function getAdmins()
+    public function getAdmins(): bool
     {
         $inline_keyboard = [];
 
@@ -989,7 +989,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
             [
                 'text'          => 'Добавить админа',
                 'callback_data' => json_encode([
-                    'method' => '/get_setting',
+                    'method' => '/add_admin',
                     'id'     => null,
                     'value'  => null,
                 ]),
