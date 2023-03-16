@@ -103,10 +103,10 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                 if (!str_contains($words, $tag->name)) {
                     foreach ($tag->synonyms as $synonym) {
                         if (str_contains($words, $synonym->name)) {
-                            break 2;
+                            continue 2;
                         }
                     }
-                    break 2;
+                    continue 2;
                 }
             }
             $this->bot->telegram->sendMessage([
