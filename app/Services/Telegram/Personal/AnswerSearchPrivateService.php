@@ -100,9 +100,9 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
         /** @var Hint $hint */
         foreach ($hints as $hint) {
             foreach ($hint->tags as $tag) {
-                if (!str_contains($words, $tag->name)) {
+                if (!str_contains(mb_strtolower($words), mb_strtolower($tag->name))) {
                     foreach ($tag->synonyms as $synonym) {
-                        if (str_contains($words, $synonym->name)) {
+                        if (str_contains(mb_strtolower($words), mb_strtolower($synonym->name))) {
                             continue 2;
                         }
                     }
