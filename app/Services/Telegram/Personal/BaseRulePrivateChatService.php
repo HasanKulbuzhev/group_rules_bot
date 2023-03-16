@@ -78,11 +78,11 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
     {
         foreach ($this->allow_types as $type) {
             if(!in_array($type, $this->updateService->getMessageInnerTypes())) {
-                return false;
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
     protected function other(): bool
