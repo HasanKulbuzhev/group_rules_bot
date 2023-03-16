@@ -58,7 +58,7 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
 
     protected function validate(): bool
     {
-        $isAllow = !$this->allowTypes();
+        $isAllow = $this->allowTypes();
 
         return $isAllow;
     }
