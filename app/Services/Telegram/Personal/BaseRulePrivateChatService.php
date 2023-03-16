@@ -119,6 +119,7 @@ class BaseRulePrivateChatService extends BaseRuleChatService implements BaseServ
                     'caption'      => $message,
                     'document'     => $file,
                     'reply_markup' => $reply_markup,
+
                 ]);
 
             return ;
