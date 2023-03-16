@@ -574,6 +574,8 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                 $this->getHint($hint);
             }
 
+            $this->resetUserState();
+
             return $isSave;
         } else {
             $this->reply('Введите слово');
@@ -599,9 +601,10 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                 Ключевое слово успешно сохранено! \n
                 ");
 
-                $this->resetUserState();
                 $this->getTag($tag);
             }
+
+            $this->resetUserState();
 
             return $isSave;
         } else {
@@ -695,9 +698,9 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
                 ");
 
                 $this->getTag($tag);
-
-                $this->resetUserState();
             }
+
+            $this->resetUserState();
 
             return $isSave;
         } else {
@@ -727,6 +730,8 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
                 $this->getSynonym($synonym);
             }
+
+            $this->resetUserState();
 
             return $isSave;
         } else {
