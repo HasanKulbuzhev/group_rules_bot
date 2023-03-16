@@ -66,7 +66,7 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
     {
         try {
             if (
-                !$this->bot->isAdminTelegramId($this->updateService->getChatId()) ||
+                !$this->bot->isAdminTelegramId($this->updateService->getChatId()) &&
                 $this->getMethod() !== '/activate_admin'
             ) {
                 return $this->other();
