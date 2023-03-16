@@ -94,10 +94,16 @@ class AnswerSearchPrivateService extends BaseRulePrivateChatService implements B
 
     public function other(): bool
     {
-        $hints = $this->bot->hints()->ofTagName($this->updateService->data()->message->text)->get();
+        $words = $this->updateService->data()->message->text;
+        $hints = $this->bot->hints()->ofTagName($words)->get();
 
         /** @var Hint $hint */
         foreach ($hints as $hint) {
+            foreach ($hint->tags as $tag) {
+                if (!str_contains($words, $tag->name)) {
+                    break 2;
+                }
+            }
             $this->bot->telegram->sendMessage([
                 'chat_id'             => $this->updateService->data()->message->chat->id,
                 'reply_to_message_id' => $this->updateService->data()->message->messageId,
