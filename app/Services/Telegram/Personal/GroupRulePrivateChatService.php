@@ -66,7 +66,7 @@ class GroupRulePrivateChatService extends BaseRulePrivateChatService implements 
 
     public function getRules(): bool
     {
-        if (is_null(optional($this->bot->setting)->rule)) {
+        if (is_null($this->bot->setting->rule)) {
             $text = 'Вы пока не настроили бот';
         } else {
             $text = $this->bot->setting->rule;
