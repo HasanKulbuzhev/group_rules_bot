@@ -39,16 +39,16 @@ class GroupRulePrivateChatService extends BaseRulePrivateChatService implements 
     {
         if (\Cache::has($this->getUserStatePath())) {
             \DB::transaction(function() {
-                $isSave = true;
+                $setting = $this->bot->setting;
+
                 if (is_null($this->bot->setting)) {
                     $setting = new RuleBotSetting();
                     $setting->rule;
                     $setting->telegram_bot_id = $this->bot->id;
-                    $isSave = $isSave && $setting->save();
                 }
 
-                $this->bot->setting->rule = $this->update->message->text;
-                $isSave = $this->bot->setting->save();
+                $setting->rule = $this->update->message->text;
+                $isSave = $setting->save();
 
                 $this->bot->telegram->sendMessage([
                     'chat_id' => $this->update->message->chat->id,
