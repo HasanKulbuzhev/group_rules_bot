@@ -5,6 +5,7 @@ namespace App\Services\Telegram\Personal;
 use App\Enums\Telegram\MessageTypeEnum;
 use App\Interfaces\Base\BaseService;
 use App\Models\RuleBotSetting;
+use Exception;
 
 class GroupRulePrivateChatService extends BaseRulePrivateChatService implements BaseService
 {
@@ -19,7 +20,21 @@ class GroupRulePrivateChatService extends BaseRulePrivateChatService implements 
 
     public function run(): bool
     {
-        return parent::run();
+        try {
+            return parent::run();
+        } catch (Exception $exception) {
+            $text = $exception->getMessage();
+            $allErrorText = json_encode($exception->getTrace());
+
+            $this->resetUserState();
+
+            throw new Exception("
+                С ботом @{$this->bot->username} произошло что-то не так. \n
+                $text. \n
+                All error text : \n
+                $allErrorText
+                ");
+        }
     }
 
     protected function getHelp(): bool
