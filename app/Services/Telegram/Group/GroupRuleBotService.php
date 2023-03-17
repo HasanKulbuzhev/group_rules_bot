@@ -7,6 +7,7 @@ use App\Interfaces\Base\BaseService;
 use App\Services\Base\Telegram\BaseRuleChatService;
 use App\Services\Telegram\Personal\GroupRulePrivateChatService;
 use App\Services\Telegram\Update\TelegramUpdateService;
+use DB;
 
 class GroupRuleBotService extends BaseRuleChatService implements BaseService
 {
@@ -19,10 +20,12 @@ class GroupRuleBotService extends BaseRuleChatService implements BaseService
     {
         $chatType = (new TelegramUpdateService($this->update))->getChatType();
 
-        if (!in_array($chatType, array_keys($this->rules))) {
-            return true;
-        }
+        $isSave = true;
 
-        return $this->runService($chatType);
+        DB::transaction(function() use ($isSave, $chatType) {
+            $isSave = $this->runService($chatType) && $isSave;
+        });
+
+        return $isSave;
     }
 }
