@@ -90,10 +90,10 @@ class GroupRulePrivateChatService extends BaseRulePrivateChatService implements 
 
     public function getRules(): bool
     {
-        if (is_null($this->bot->setting->rule)) {
+        if (is_null($this->bot->setting->rules)) {
             $text = 'Вы пока не настроили бот';
         } else {
-            $text = $this->bot->setting->rule;
+            $text = $this->bot->setting->rules;
         }
 
         $this->bot->telegram->sendMessage([
