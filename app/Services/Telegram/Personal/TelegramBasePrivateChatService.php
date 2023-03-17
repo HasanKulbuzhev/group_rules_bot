@@ -81,8 +81,6 @@ class TelegramBasePrivateChatService extends BaseRulePrivateChatService implemen
                     $this->reply("Ваш бот @{$newBot->username} успешно сохранён!! \n Вы можете перейти к его настройке");
                 }
             });
-
-            return true;
         } else {
             $this->reply('Вы ввели не валидный токен! ');
         }
