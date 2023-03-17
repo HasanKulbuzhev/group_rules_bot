@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * @package App\Models
  *
  * @property int $id
- * @property string $rule // правила для бота
+ * @property string $rules // правила для бота
  * @property int $timer // таймер в секундах
  * @property int $telegram_bot_id // таймер в секундах
  * @property Carbon $created_at
@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Model;
 class RuleBotSetting extends Model
 {
     protected $fillable = [
-        'rule',
+        'rules',
         'timer',
         'telegram_bot_id',
     ];
