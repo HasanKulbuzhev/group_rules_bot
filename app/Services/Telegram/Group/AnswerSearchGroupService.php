@@ -27,6 +27,18 @@ class AnswerSearchGroupService extends BaseGroupChatService implements BaseServi
 
         /** @var Hint $hint */
         foreach ($hints as $hint) {
+
+            foreach ($hint->tags as $tag) {
+                if (!str_contains(mb_strtolower($words), mb_strtolower($tag->name))) {
+                    foreach ($tag->synonyms as $synonym) {
+                        if (str_contains(mb_strtolower($words), mb_strtolower($synonym->name))) {
+                            continue 2;
+                        }
+                    }
+                    continue 2;
+                }
+            }
+
             $this->bot->telegram->sendMessage([
                 'chat_id'             => $this->updateService->data()->message->chat->id,
                 'reply_to_message_id' => $this->updateService->data()->message->messageId,
