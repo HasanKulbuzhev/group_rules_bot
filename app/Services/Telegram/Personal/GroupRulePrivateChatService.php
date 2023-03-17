@@ -32,7 +32,7 @@ class GroupRulePrivateChatService extends BaseRulePrivateChatService implements 
         return true;
     }
 
-    protected function setRules()
+    protected function setRules(): bool
     {
         if (\Cache::has($this->getUserStatePath())) {
             \DB::transaction(function() {
@@ -60,5 +60,21 @@ class GroupRulePrivateChatService extends BaseRulePrivateChatService implements 
 
             return true;
         }
+    }
+
+    public function getRules(): bool
+    {
+        if (is_null(optional($this->bot->setting)->rule)) {
+            $text = 'Вы пока не настроили бот';
+        } else {
+            $text = $this->bot->setting->rule;
+        }
+
+        $this->bot->telegram->sendMessage([
+            'chat_id' => $this->update->message->chat->id,
+            'text' => $text
+        ]);
+
+        return true;
     }
 }
