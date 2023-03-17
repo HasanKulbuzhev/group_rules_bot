@@ -23,6 +23,7 @@ class AnswerSearchGroupService extends BaseGroupChatService implements BaseServi
 
     public function message(): bool
     {
+        $words = $this->updateService->data()->message->text;
         $hints = $this->bot->hints()->ofTagName($this->updateService->data()->message->text)->get();
 
         /** @var Hint $hint */
