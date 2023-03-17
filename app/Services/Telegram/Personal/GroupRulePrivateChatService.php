@@ -12,6 +12,7 @@ class GroupRulePrivateChatService extends BaseRulePrivateChatService implements 
         '/help' => 'getHelp',
         '/cancel' => 'cancel',
         '/set_rules' => 'setRules',
+        '/get_rules' => 'getRules',
         MessageTypeEnum::OTHER => 'other',
     ];
 
@@ -26,6 +27,7 @@ class GroupRulePrivateChatService extends BaseRulePrivateChatService implements 
             'chat_id' => $this->update->message->chat->id,
             'text' => "введите
              /set_rules чтобы указать правила группы \n
+             /get_rules чтобы указать правила группы \n
              "
         ]);
 
