@@ -43,11 +43,11 @@ class GroupRulePrivateChatService extends BaseRulePrivateChatService implements 
 
                 if (is_null($this->bot->setting)) {
                     $setting = new RuleBotSetting();
-                    $setting->rule;
+                    $setting->rules;
                     $setting->telegram_bot_id = $this->bot->id;
                 }
 
-                $setting->rule = $this->update->message->text;
+                $setting->rules = $this->update->message->text;
                 $isSave = $setting->save();
 
                 $this->bot->telegram->sendMessage([
