@@ -60,7 +60,7 @@ class TelegramBot extends Model
 
     public function setting(): HasOne
     {
-        return $this->hasOne(RuleBotSetting::class);
+        return $this->hasOne(RuleBotSetting::class, 'telegram_bot_id');
     }
 
     public function hints(): BelongsToMany
