@@ -27,7 +27,7 @@ class GroupRulePrivateChatService extends BaseRulePrivateChatService implements 
             'chat_id' => $this->update->message->chat->id,
             'text' => "введите
              /set_rules чтобы указать правила группы \n
-             /get_rules чтобы указать правила группы \n
+             /get_rules чтобы показать правила группы \n
              "
         ]);
 
