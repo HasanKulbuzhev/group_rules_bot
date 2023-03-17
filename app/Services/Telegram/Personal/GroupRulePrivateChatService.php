@@ -4,6 +4,7 @@ namespace App\Services\Telegram\Personal;
 
 use App\Enums\Telegram\MessageTypeEnum;
 use App\Interfaces\Base\BaseService;
+use App\Models\RuleBotSetting;
 
 class GroupRulePrivateChatService extends BaseRulePrivateChatService implements BaseService
 {
@@ -38,6 +39,14 @@ class GroupRulePrivateChatService extends BaseRulePrivateChatService implements 
     {
         if (\Cache::has($this->getUserStatePath())) {
             \DB::transaction(function() {
+                $isSave = true;
+                if (is_null($this->bot->setting)) {
+                    $setting = new RuleBotSetting();
+                    $setting->rule;
+                    $setting->telegram_bot_id = $this->bot->id;
+                    $isSave = $isSave && $setting->save();
+                }
+
                 $this->bot->setting->rule = $this->update->message->text;
                 $isSave = $this->bot->setting->save();
 
