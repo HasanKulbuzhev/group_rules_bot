@@ -13,12 +13,18 @@ abstract class BaseGroupChatService extends BaseRuleChatService
 {
     public function run(): bool
     {
-        $updateService = (new TelegramUpdateService($this->update));
-        $messageType = $updateService->getMessageType();
+        $method = $this->getMethod();
+
+        return $this->$method();
+    }
+
+    protected function getMethod()
+    {
+        $messageType = $this->updateService->getMessageType();
         $methods = Arr::get($this->rules, $messageType, MessageTypeEnum::OTHER);
         if (is_array($methods)) {
             foreach ($methods as $type => $methodName) {
-                if (in_array($type, $updateService->getMessageInnerTypes($messageType))) {
+                if (in_array($type, $this->updateService->getMessageInnerTypes($messageType))) {
                     $method = $methodName;
                     break;
                 } else {
@@ -29,7 +35,7 @@ abstract class BaseGroupChatService extends BaseRuleChatService
             $method = $methods;
         }
 
-        return $this->$method();
+        return $method;
     }
 
     protected function other(): bool

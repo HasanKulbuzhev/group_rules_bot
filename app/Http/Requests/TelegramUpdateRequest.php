@@ -8,6 +8,11 @@ class TelegramUpdateRequest extends FormRequest
 {
     public function rules(): array
     {
+        return static::rules();
+    }
+
+    public static function rule(): array
+    {
         return [
             'message' => ['required_without:callback_query', 'array'],
             'message.from' => ['required_with:message', 'array'],

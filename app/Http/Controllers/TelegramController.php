@@ -71,7 +71,7 @@ class TelegramController extends Controller
         return 'ok';
     }
 
-    public function searchAnswerBot(TelegramUpdateRequest $request, string $token): string
+    public function searchAnswerBot(Request $request, string $token): string
     {
         /** @var TelegramBot $bot */
         $bot = TelegramBot::query()
@@ -79,7 +79,9 @@ class TelegramController extends Controller
             ->where('type', TelegramBotTypeEnum::SEARCH_ANSWER)
             ->first();
 
-        if (is_null($bot)) {
+        $validate = \Validator::make($request->all(), TelegramUpdateRequest::rule());
+
+        if (is_null($bot) && $validate->fails()) {
             return 'not ok';
         }
 
@@ -107,6 +109,7 @@ class TelegramController extends Controller
             ->where('type', TelegramBotTypeEnum::BASE)
             ->with('hints.tags')
             ->first();
+        dd($request->validated());
         dd(Hint::query()->with('tags.synonyms')->get()->slice(10, 54));
         $file = $bot->telegram->getFile([
             'file_id' => 'BQACAgIAAxkBAAIJhGQPJvBY53Qv2eAHsi5NRl2HuLKTAAJQKAAC-655SDOoIKqyjZKpLwQ'
