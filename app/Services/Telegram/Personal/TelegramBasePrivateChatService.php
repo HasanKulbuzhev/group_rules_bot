@@ -124,7 +124,7 @@ class TelegramBasePrivateChatService extends BaseRulePrivateChatService implemen
         } else {
             $this->reply('Введите токен бота');
 
-            $this->setUserState('/create_search_answer_bot');
+            $this->setUserState('/create_moon_calculation_bot');
 
             return true;
         }
