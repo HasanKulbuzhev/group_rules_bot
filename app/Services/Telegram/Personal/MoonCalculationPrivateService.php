@@ -30,6 +30,8 @@ class MoonCalculationPrivateService extends BaseRulePrivateChatService implement
     public function getHelp()
     {
         $this->reply(view('moonCalculationBotHelp'));
+
+        return true;
     }
 
     public function calculation()
