@@ -37,7 +37,7 @@ class MoonCalculationPrivateService extends BaseRulePrivateChatService implement
         try {
             $text = $this->update->message->text;
 
-            $date = Carbon::now($text);
+            $date = Carbon::make($text);
             $day = $date->day;
             $month = $date->month;
             $year = $date->year;

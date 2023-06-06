@@ -105,6 +105,7 @@ class TelegramController extends Controller
             ->where('type', TelegramBotTypeEnum::MOON_CALCULATION)
             ->first();
 
+
         $validate = \Validator::make($request->all(), TelegramUpdateRequest::rule());
 
         if (is_null($bot) && $validate->fails()) {

@@ -15,12 +15,18 @@ class MoonCalculationBotService extends BaseRuleChatService implements BaseServi
     public function run(): bool
     {
         $chatType = (new TelegramUpdateService($this->update))->getChatType();
-        $isSave = true;
 
-        DB::transaction(function() use ($isSave, $chatType) {
-            $isSave = $this->runService($chatType) && $isSave;
-        });
 
-        return $isSave;
+        try {
+            $this->runService($chatType);
+        } catch (\Exception $e) {
+            $this->bot->telegram->sendMessage([
+                'chat_id' => config('telegram.bots.my_account.id'),
+                'text'    => 'test ' . $chatType . $e->getMessage()
+            ]);
+            return true;
+        }
+
+        return true;
     }
 }
