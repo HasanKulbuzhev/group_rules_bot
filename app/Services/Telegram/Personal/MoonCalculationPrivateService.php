@@ -42,7 +42,7 @@ class MoonCalculationPrivateService extends BaseRulePrivateChatService implement
             $month = $date->month;
             $year = $date->year;
             $lunarNumber = ($year % 19) + 1;
-            $lunarDay = ($lunarNumber * 11) - 14 + $day + $month;
+            $lunarDay = (($lunarNumber * 11) - 14 + $day + $month) % 30;
 
             $this->reply(view('moonCalculationBot-calculate', [
                 'lunarDay' => $lunarDay,
