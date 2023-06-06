@@ -16,6 +16,7 @@ class TelegramBasePrivateChatService extends BaseRulePrivateChatService implemen
         '/help' => 'getHelp',
         '/create_group_rule_bot' => 'createGroupRuleBot',
         '/create_search_answer_bot' => 'createSearchAnswerBot',
+        '/create_moon_calculation_bot' => 'createMoonCalculationBot',
         'other' => 'other',
     ];
 
@@ -107,6 +108,19 @@ class TelegramBasePrivateChatService extends BaseRulePrivateChatService implemen
     {
         if ($this->hasUserState()) {
             return $this->createBot(TelegramBotTypeEnum::SEARCH_ANSWER);
+        } else {
+            $this->reply('Введите токен бота');
+
+            $this->setUserState('/create_search_answer_bot');
+
+            return true;
+        }
+    }
+
+    protected function createMoonCalculationBot(): bool
+    {
+        if ($this->hasUserState()) {
+            return $this->createBot(TelegramBotTypeEnum::MOON_CALCULATION);
         } else {
             $this->reply('Введите токен бота');
 

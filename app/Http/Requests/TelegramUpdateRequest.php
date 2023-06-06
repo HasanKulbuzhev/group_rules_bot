@@ -8,7 +8,7 @@ class TelegramUpdateRequest extends FormRequest
 {
     public function rules(): array
     {
-        return static::rules();
+        return static::rule();
     }
 
     public static function rule(): array
