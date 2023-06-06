@@ -9,10 +9,6 @@ use Exception;
 
 class MoonCalculationPrivateService extends BaseRulePrivateChatService implements BaseService
 {
-    protected array $allow_types = [
-        MessageTypeEnum::TEXT,
-    ];
-
     protected array $rules = [
         MessageTypeEnum::OTHER => 'other',
         '/start' => 'getHelp',
