@@ -5,6 +5,7 @@ namespace App\Services\Telegram\Personal;
 use App\Enums\Telegram\MessageTypeEnum;
 use App\Interfaces\Base\BaseService;
 use Carbon\Carbon;
+use Exception;
 
 class MoonCalculationPrivateService extends BaseRulePrivateChatService implements BaseService
 {
@@ -14,8 +15,8 @@ class MoonCalculationPrivateService extends BaseRulePrivateChatService implement
 
     protected array $rules = [
         MessageTypeEnum::OTHER => 'other',
-        'start' => 'getHelp',
-        'help' => 'getHelp',
+        '/start' => 'getHelp',
+        '/help' => 'getHelp',
     ];
 
     public function run(): bool
@@ -37,18 +38,22 @@ class MoonCalculationPrivateService extends BaseRulePrivateChatService implement
 
     public function calculation()
     {
-        $text = $this->update->message->text;
+        try {
+            $text = $this->update->message->text;
 
-        $date = Carbon::now($text);
-        $day = $date->day;
-        $month = $date->month;
-        $year = $date->year;
-        $lunarNumber = ($year % 19) + 1;
-        $lunarDay = ($lunarNumber * 11) - 14 + $day + $month;
+            $date = Carbon::now($text);
+            $day = $date->day;
+            $month = $date->month;
+            $year = $date->year;
+            $lunarNumber = ($year % 19) + 1;
+            $lunarDay = ($lunarNumber * 11) - 14 + $day + $month;
 
-        $this->reply(view('moonCalculationBot-calculate', [
-            'lunarDay' => $lunarDay,
-            'date' => $date->format('d.m.Y')
-        ]));
+            $this->reply(view('moonCalculationBot-calculate', [
+                'lunarDay' => $lunarDay,
+                'date' => $date->format('d.m.Y')
+            ]));
+        } catch (Exception $e) {
+            return;
+        }
     }
 }
