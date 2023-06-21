@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\LunarMonth;
 use App\Enums\Telegram\TelegramBotTypeEnum;
 use App\Http\Requests\TelegramUpdateRequest;
 use App\Services\Telegram\RuleBotService;
@@ -9,6 +10,7 @@ use App\Models\TelegramBot;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Telegram\Bot\Objects\Update;
 use Throwable;
 
@@ -130,6 +132,71 @@ class TelegramController extends Controller
 
     public function test(TelegramUpdateRequest $request)
     {
-        dd(Carbon::make('04.08.2001')->format('d-m-Y'));
+        $date = Carbon::make('21.06.2023');
+        $day = $date->day;
+        $month = $date->month;
+        $year = $date->year;
+        $lunarNumber = ($year % 19) + 1;
+        $lunarDay = (($lunarNumber * 11) - 14 + $day + $month) % 30;
+        $lunarDay = $lunarDay === 0? 30: $lunarDay;
+
+        /**
+         * step 1:
+         * hijra 28
+         * lunnar day 1
+         *
+         * step 2:
+         * hijra 22
+         * lunar day 24
+         *
+         * step 3:
+         * hijra 1
+         * lunnar day 28
+         */
+
+        $data = Http::get(sprintf('http://api.aladhan.com/v1/gToH/%s-%s-%s', $day, $month, $year))->object()->data->hijri;
+        $hijraDay = (int) $data->day;
+//        dd((int) $data->day);
+//        dd($data);
+        $lunarMonth = __('hijra.' . LunarMonth::getKey($data->month->number));
+        $lunarYear = $data->year;
+
+        /** Если лунный день по нашему расчёт на следующем месяце от календаря */
+        if (
+            $hijraDay > 25 ||
+            $lunarDay < 5
+        ) {
+            if ($lunarMonth === 12) {
+                $lunarMonth = 1;
+                $lunarYear = (int) $lunarYear + 1;
+            } else {
+                $lunarMonth++;
+            }
+        }
+
+        /** Если лунный день по нашему расчёт на предыдущем месяце от календаря */
+        if (
+            $lunarDay > 25 ||
+            $hijraDay < 5
+        ) {
+            if ($lunarMonth === 1) {
+                $lunarMonth = 12;
+                $lunarYear = (int) $lunarYear - 1;
+            } else {
+                $lunarMonth--;
+            }
+        }
+
+        return view('moonCalculationBot-calculate', [
+            'lunarDay' => $lunarDay,
+            'lunarMonth' => $lunarMonth,
+            'lunarYear' => $lunarYear,
+            'date' => $date->format('d.m.Y'),
+        ]);
+//        dd(__('hijra'));
+        dd($data->data->hijri);
+        dd($lunarYear);
+        dd($lunarDay);
+
     }
 }

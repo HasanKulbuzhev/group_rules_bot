@@ -1,1 +1,1 @@
-{{$date}} будет {{$lunarDay}} лунный день
+{{$date}} будет {{$lunarDay}} {{$lunarMonth}} {{$lunarYear}} года
