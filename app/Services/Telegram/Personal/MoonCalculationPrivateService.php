@@ -62,8 +62,7 @@ class MoonCalculationPrivateService extends BaseRulePrivateChatService implement
              */
             if (
                 $hijraDay > 25 ||
-                $lunarDay < 5 ||
-                $lunarDay !== $hijraDay
+                $lunarDay < 5
             ) {
                 if ($lunarMonthNumber === 12) {
                     $lunarMonthNumber = 1;
@@ -80,8 +79,7 @@ class MoonCalculationPrivateService extends BaseRulePrivateChatService implement
              */
             if (
                 $lunarDay > 25 ||
-                $hijraDay < 5 ||
-                $lunarDay !== $hijraDay
+                $hijraDay < 5
             ) {
                 if ($lunarMonthNumber === 1) {
                     $lunarMonthNumber = 12;
