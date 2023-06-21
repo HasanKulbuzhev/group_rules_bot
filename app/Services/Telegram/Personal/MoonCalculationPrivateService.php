@@ -52,7 +52,7 @@ class MoonCalculationPrivateService extends BaseRulePrivateChatService implement
 
             $data = Http::get(sprintf('http://api.aladhan.com/v1/gToH/%s-%s-%s', $day, $month, $year))->object()->data->hijri;
             $hijraDay = (int) $data->day;
-            $lunarMonth = __('hijra.' . LunarMonth::getKey($data->month->number));
+            $lunarMonthNumber = $data->month->number;
             $lunarYear = $data->year;
 
             /**
@@ -65,11 +65,11 @@ class MoonCalculationPrivateService extends BaseRulePrivateChatService implement
                 $lunarDay < 5 ||
                 $lunarDay !== $hijraDay
             ) {
-                if ($lunarMonth === 12) {
-                    $lunarMonth = 1;
+                if ($lunarMonthNumber === 12) {
+                    $lunarMonthNumber = 1;
                     $lunarYear = (int) $lunarYear + 1;
                 } else {
-                    $lunarMonth++;
+                    $lunarMonthNumber++;
                 }
             }
 
@@ -83,17 +83,17 @@ class MoonCalculationPrivateService extends BaseRulePrivateChatService implement
                 $hijraDay < 5 ||
                 $lunarDay !== $hijraDay
             ) {
-                if ($lunarMonth === 1) {
-                    $lunarMonth = 12;
+                if ($lunarMonthNumber === 1) {
+                    $lunarMonthNumber = 12;
                     $lunarYear = (int) $lunarYear - 1;
                 } else {
-                    $lunarMonth--;
+                    $lunarMonthNumber--;
                 }
             }
 
             $this->reply(view('moonCalculationBot-calculate', [
                 'lunarDay' => $lunarDay,
-                'lunarMonth' => $lunarMonth,
+                'lunarMonth' => __('hijra.' . LunarMonth::getKey($lunarMonthNumber)),
                 'lunarYear' => $lunarYear,
                 'date' => $date->format('d.m.Y'),
             ]));
