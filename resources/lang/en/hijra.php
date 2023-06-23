@@ -25,6 +25,6 @@ return [
     LunarMonth::getKey(LunarMonth::SHAABAN) => 'ша‘бан',
     LunarMonth::getKey(LunarMonth::RAMADAN) => 'рамадан',
     LunarMonth::getKey(LunarMonth::SHAWWAL) => 'шавваль',
-    LunarMonth::getKey(LunarMonth::ZUL_KADA) => 'зу аль-ка‘да',
-    LunarMonth::getKey(LunarMonth::ZUL_HIJA) => 'зу аль-хиджжа',
+    LunarMonth::getKey(LunarMonth::ZUL_KADA) => 'зуаль-ка‘да',
+    LunarMonth::getKey(LunarMonth::ZUL_HIJA) => 'зуаль-хиджжа',
 ];
