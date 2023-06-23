@@ -132,7 +132,7 @@ class TelegramController extends Controller
 
     public function test(TelegramUpdateRequest $request)
     {
-        $date = Carbon::make('21.06.2023');
+        $date = Carbon::make('18.07.2023');
         $day = $date->day;
         $month = $date->month;
         $year = $date->year;
@@ -158,38 +158,38 @@ class TelegramController extends Controller
         $hijraDay = (int) $data->day;
 //        dd((int) $data->day);
 //        dd($data);
-        $lunarMonth = __('hijra.' . LunarMonth::getKey($data->month->number));
+        $lunarMonthNumber = $data->month->number;
         $lunarYear = $data->year;
 
         /** Если лунный день по нашему расчёт на следующем месяце от календаря */
         if (
-            $hijraDay > 25 ||
+            $hijraDay > 25 &&
             $lunarDay < 5
         ) {
-            if ($lunarMonth === 12) {
-                $lunarMonth = 1;
+            if ($lunarMonthNumber === 12) {
+                $lunarMonthNumber = 1;
                 $lunarYear = (int) $lunarYear + 1;
             } else {
-                $lunarMonth++;
+                $lunarMonthNumber++;
             }
         }
 
         /** Если лунный день по нашему расчёт на предыдущем месяце от календаря */
         if (
-            $lunarDay > 25 ||
+            $lunarDay > 25 &&
             $hijraDay < 5
         ) {
-            if ($lunarMonth === 1) {
-                $lunarMonth = 12;
+            if ($lunarMonthNumber === 1) {
+                $lunarMonthNumber = 12;
                 $lunarYear = (int) $lunarYear - 1;
             } else {
-                $lunarMonth--;
+                $lunarMonthNumber--;
             }
         }
 
         return view('moonCalculationBot-calculate', [
             'lunarDay' => $lunarDay,
-            'lunarMonth' => $lunarMonth,
+            'lunarMonth' => __('hijra.' . LunarMonth::getKey($lunarMonthNumber)),
             'lunarYear' => $lunarYear,
             'date' => $date->format('d.m.Y'),
         ]);
