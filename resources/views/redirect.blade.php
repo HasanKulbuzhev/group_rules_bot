@@ -116,7 +116,8 @@
 </a>
 
 <div id="button-container">
-    <a href="http://www.config.vpn.com">
+{{--    <a href="http://www.config.vpn.com">--}}
+    <a onclick="return buildURL(this)" href="">
         <button class="primary-button">
             Перейти в приложение !
             <span class="round"/>
