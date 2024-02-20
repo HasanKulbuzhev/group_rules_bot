@@ -75,7 +75,7 @@
     <?php
     $host = 'www.hasanvince.ru';
     if($_SERVER['HTTP_HOST'] === 'www.hasanvince.ru') {
-        $host = '89.223.126.205';
+        $host = 'www.mssg.me';
     }
 
         ?>
