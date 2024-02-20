@@ -70,6 +70,18 @@
     </style>
 </head>
 <body>
+
+<div id="button-container">
+    <a id="redirectLink" href="">
+        {{--    <a onclick="return buildURL(this)" href="">--}}
+        <button class="primary-button">
+            Перейти в приложение !
+            <span class="round"/>
+        </button>
+    </a>
+</div>
+
+
 <script>
   let button = document.querySelector(".primary-button");
   let item = document.querySelector(".primary-button .round");
@@ -105,25 +117,13 @@
     item.style.left = buttonX + "px";
   });
 
-  // Ссылка
-  function buildURL(item) {
-    item.href = window.location.href;
-    return true;
-  }
+  window.onload = function() {
+    var currentUrl = window.location.href;
+
+    document.getElementById('redirectLink').setAttribute('href', currentUrl);
+  };
+
 </script>
-
-<a onclick="return buildURL(this)" href="">
-</a>
-
-<div id="button-container">
-{{--    <a href="http://www.config.vpn.com">--}}
-    <a onclick="return buildURL(this)" href="">
-        <button class="primary-button">
-            Перейти в приложение !
-            <span class="round"/>
-        </button>
-    </a>
-</div>
 
 </body>
 </html>
