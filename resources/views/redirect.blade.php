@@ -73,7 +73,7 @@
 
 <div id="button-container">
     {{--    <a id="redirectLink" href="#">--}}
-            <a href="<?php echo ((!empty($_SERVER['HTTPS'])) ? 'https' : 'http') . '://' . 'www.serial-port-monitor.org' . $_SERVER['REQUEST_URI']; ?>">
+            <a href="<?php echo 'https' . '://' . 'www.hasanvince.ru' . $_SERVER['REQUEST_URI']; ?>">
         <button class="primary-button">
             Перейти в приложение !
             <span class="round"/>
