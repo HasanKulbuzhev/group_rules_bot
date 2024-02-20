@@ -72,8 +72,8 @@
 <body>
 
 <div id="button-container">
-    <a id="redirectLink" href="#">
-        {{--    <a onclick="return buildURL(this)" href="">--}}
+{{--    <a id="redirectLink" href="#">--}}
+        <a href="<?php echo ((!empty($_SERVER['HTTPS'])) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">
         <button class="primary-button">
             Перейти в приложение !
             <span class="round"/>
