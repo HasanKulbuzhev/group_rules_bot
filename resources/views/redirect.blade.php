@@ -72,8 +72,15 @@
 <body>
 
 <div id="button-container">
+    <?php
+    $host = 'www.hasanvince.ru';
+    if($_SERVER['HTTP_HOST'] === 'www.hasanvince.ru') {
+        $host = '89.223.126.205';
+    }
+
+        ?>
     {{--    <a id="redirectLink" href="#">--}}
-            <a href="<?php echo 'https' . '://' . 'www.hasanvince.ru' . $_SERVER['REQUEST_URI']; ?>">
+            <a href="<?php echo 'https' . '://' . $host . $_SERVER['REQUEST_URI']; ?>">
         <button class="primary-button">
             Перейти в приложение !
             <span class="round"/>
