@@ -80,7 +80,7 @@
 
         ?>
     {{--    <a id="redirectLink" href="#">--}}
-            <a href="<?php echo 'https' . '://' . $host . $_SERVER['REQUEST_URI']; ?>">
+            <a href="<?php echo 'https' . '://' . $host . $_SERVER['REQUEST_URI']; ?>" target="_blank">
         <button class="primary-button">
             Перейти в приложение !
             <span class="round"/>
