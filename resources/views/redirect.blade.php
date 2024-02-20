@@ -72,7 +72,7 @@
 <body>
 
 <div id="button-container">
-    <a id="redirectLink" href="">
+    <a id="redirectLink" href="#">
         {{--    <a onclick="return buildURL(this)" href="">--}}
         <button class="primary-button">
             Перейти в приложение !
