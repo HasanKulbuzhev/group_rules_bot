@@ -74,7 +74,7 @@
 <div id="button-container">
     {{--    <a id="redirectLink" href="#">--}}
     {{--        <a href="<?php echo ((!empty($_SERVER['HTTPS'])) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>">--}}
-    <a href="https://www.hasanvince.ru/?url=vless%3A%2F%2Fdb3a7df9-7e21-44e0-96fa-4bfea004dfa8%4070.34.222.214%3A443%3Ftype%3Dtcp%26security%3Dreality%26pbk%3Dk6HcumJDRg9SjVPv4OCLi1xMVilFp0aT-1_IJrv152c%26fp%3Dfirefox%26sni%3Dgoogle.com%26sid%3D50566444%26spx%3D%252F%26flow%3Dxtls-rprx-vision%23server2-4ilqe9mf">
+    <a href="www.hasanvince.ru/?url=vless%3A%2F%2Fdb3a7df9-7e21-44e0-96fa-4bfea004dfa8%4070.34.222.214%3A443%3Ftype%3Dtcp%26security%3Dreality%26pbk%3Dk6HcumJDRg9SjVPv4OCLi1xMVilFp0aT-1_IJrv152c%26fp%3Dfirefox%26sni%3Dgoogle.com%26sid%3D50566444%26spx%3D%252F%26flow%3Dxtls-rprx-vision%23server2-4ilqe9mf">
         <button class="primary-button">
             Перейти в приложение !
             <span class="round"/>
