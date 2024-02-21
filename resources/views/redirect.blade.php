@@ -73,11 +73,7 @@
 
 <div id="button-container">
     <?php
-    $host = 'www.hasanvince.ru';
-    $url = $_GET['url']
-    if($_SERVER['HTTP_HOST'] === 'www.hasanvince.ru') {
-        $host = 'www.mssg.me';
-    }
+    $url = $_GET['url'];
 
         ?>
     {{--    <a id="redirectLink" href="#">--}}
