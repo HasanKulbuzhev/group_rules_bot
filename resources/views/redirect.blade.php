@@ -74,13 +74,14 @@
 <div id="button-container">
     <?php
     $host = 'www.hasanvince.ru';
+    $url = $_GET['url']
     if($_SERVER['HTTP_HOST'] === 'www.hasanvince.ru') {
         $host = 'www.mssg.me';
     }
 
         ?>
     {{--    <a id="redirectLink" href="#">--}}
-            <a href="<?php echo 'https' . '://' . $host . $_SERVER['REQUEST_URI']; ?>" target="_blank">
+            <a href="<?php echo $url; ?>" target="_blank">
         <button class="primary-button">
             Перейти в приложение !
             <span class="round"/>
