@@ -74,7 +74,7 @@
 <div id="button-container">
     <?php
     $url = $_GET['url'];
-    $url = str_replace('install-config/?', 'install-config/?url=', $url);
+    $url = str_replace('install-config/?', 'install-config/?url=vless://', $url);
 
         ?>
     {{--    <a id="redirectLink" href="#">--}}
