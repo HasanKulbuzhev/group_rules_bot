@@ -75,6 +75,7 @@
     <?php
     $url = $_GET['url'];
     $url = str_replace('install-config/?', 'install-config/?url=vless://', $url);
+    $url = urlencode($url);
 
         ?>
     {{--    <a id="redirectLink" href="#">--}}
